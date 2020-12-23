@@ -12,6 +12,8 @@ import "./SideMenu.css";
 import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 
 /////////////////// Page Components ////////////////
+import ProductList from "./ProductList";
+import prepareHeaders from "./utilities/csvHeaderToTableHeader";
 import NewOrder from "./NewOrder";
 import TobeShipped from "./TobeShipped";
 
@@ -47,7 +49,7 @@ function SideMenu() {
 
   return (
     <Router>
-      <Layout>
+      <Layout style={{ backgroundColor: "#fff" }}>
         <Sider
           style={{ width: 300, height: "100vh", backgroundColor: "#fff" }}
           collapsible
@@ -55,7 +57,7 @@ function SideMenu() {
           trigger={null}
         >
           <Menu
-            style={{ width: "100%", height: "100vh" }}
+            style={{ width: "100%", height: "100%" }}
             defaultSelectedKeys={activeDefaultSelectedKeys}
             defaultOpenKeys={["sub1", "sub2", "sub3"]}
             mode="inline"
@@ -71,7 +73,7 @@ function SideMenu() {
             </Menu.Item>
             <SubMenu key="sub1" icon={<MailOutlined />} title="库存">
               <Menu.Item key="1" onClick={() => setSelectedOption("1")}>
-                <Link to="/Inventory">
+                <Link to="/Invetory">
                   <span>多伦多现货</span>
                 </Link>
               </Menu.Item>
@@ -141,7 +143,7 @@ function SideMenu() {
             <Switch>
               <Route path="/" component={Overview}>
                 <Route path="/Overview" component={Overview}></Route>
-                <Route path="/Inventory" component={Inventory}></Route>
+                <Route path="/Invetory" component={Invetory}></Route>
                 <Route path="/NewOrder" component={NewOrder}></Route>
                 <Route path="/TobeShipped" component={TobeShipped}></Route>
                 <Route path="/InTransit" component={InTransit}></Route>
@@ -166,10 +168,23 @@ function Overview() {
   );
 }
 
-function Inventory() {
+function Invetory() {
+  // filter on the whole inventory table
+  // by status: in stock, air, sea
+  // select "in stock" items now
   return (
     <div>
-      <h2>Inventory</h2>
+      <ProductList
+        products={[]}
+        columns={prepareHeaders([
+          "名称",
+          "Size",
+          "定价CAD",
+          "九折CAD",
+          "定价RMB",
+          "九折RMB",
+        ])}
+      />
     </div>
   );
 }
