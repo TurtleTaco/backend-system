@@ -3,7 +3,7 @@ export default function prepareHeaders(properties){
     
     return Array.prototype.map.call(properties, function(property) { 
 
-            var lowerProperty = property.toLowerCase();
+            var lowerProperty = property;
             var template = {
                 title: property,
                 dataIndex : lowerProperty,
