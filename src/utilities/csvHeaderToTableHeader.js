@@ -42,6 +42,10 @@ export default function prepareHeaders(properties){
                  return template;
                  break;
 
+                case 'Stock':
+                return template;
+                break;
+
 			}
         }) 
 }
