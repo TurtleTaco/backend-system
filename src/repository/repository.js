@@ -8,11 +8,16 @@ export default class Repository {
     const firebase = require("firebase");
     require("firebase/firestore");
 
+
+    if (!firebase.apps.length) {
+  
     this.firebase = firebase.initializeApp({
         apiKey:apiKey,
         authDomain: authDomain,
         projectId: projectId
     });
+}
+
 
     this.db = firebase.firestore();
     var factory = new Factory(this.db);

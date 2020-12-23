@@ -46,6 +46,10 @@ export default function prepareHeaders(properties){
                 return template;
                 break;
 
+                default:
+                return template;
+                break;
+
 			}
         }) 
 }

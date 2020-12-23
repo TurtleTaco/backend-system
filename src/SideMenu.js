@@ -16,6 +16,7 @@ import ProductList from "./ProductList";
 import prepareHeaders from "./utilities/csvHeaderToTableHeader";
 import NewOrder from "./NewOrder";
 import TobeShipped from "./TobeShipped";
+import Repo from "./repository/repository";
 
 const { SubMenu } = Menu;
 const { Header, Sider, Content } = Layout;
@@ -40,13 +41,33 @@ function SideMenu() {
 
   // Declare a new state variable, which we'll call "count"
   const [collapsed, setSiderCollapse] = useState(false);
+  var [products, setProducts] = useState([]);
   const toggle = () => {
     setSiderCollapse(!collapsed);
   };
 
-  // Similar to componentDidMount and componentDidUpdate:
-  useEffect(() => {});
+  var repo = new Repo("AIzaSyB4WmRNMzNmBI5iERYj_Q-Bw-UpRSbBzz0", "fir-7b423.firebaseapp.com", "fir-7b423");
 
+  // Similar to componentDidMount and componentDidUpdate:
+
+   useEffect(() => {
+    // Create an scoped async function in the hook
+    async function loadProducts() {
+      let productsArray = [];
+      let docs = await repo.products.getAll().then(function(docs){
+        docs.forEach(function(doc){
+            productsArray.push(doc.data());
+        })
+        return productsArray;
+      });
+      console.log("fuck this shit");
+      console.log(docs);
+      setProducts(docs);
+    }
+    // Execute the created function directly
+    loadProducts();
+  }, []);
+  
   return (
     <Router>
       <Layout style={{ backgroundColor: "#fff" }}>
@@ -57,7 +78,7 @@ function SideMenu() {
           trigger={null}
         >
           <Menu
-            style={{ width: "100%", height: "100%" }}
+            style={{ width: "100%", height: "100%" }}   
             defaultSelectedKeys={activeDefaultSelectedKeys}
             defaultOpenKeys={["sub1", "sub2", "sub3"]}
             mode="inline"
@@ -73,7 +94,7 @@ function SideMenu() {
             </Menu.Item>
             <SubMenu key="sub1" icon={<MailOutlined />} title="库存">
               <Menu.Item key="1" onClick={() => setSelectedOption("1")}>
-                <Link to="/Invetory">
+                <Link to="/Inventory">
                   <span>多伦多现货</span>
                 </Link>
               </Menu.Item>
@@ -143,7 +164,7 @@ function SideMenu() {
             <Switch>
               <Route path="/" component={Overview}>
                 <Route path="/Overview" component={Overview}></Route>
-                <Route path="/Invetory" component={Invetory}></Route>
+                <Route path="/Inventory" component={() => Inventory(products)}></Route>
                 <Route path="/NewOrder" component={NewOrder}></Route>
                 <Route path="/TobeShipped" component={TobeShipped}></Route>
                 <Route path="/InTransit" component={InTransit}></Route>
@@ -168,21 +189,16 @@ function Overview() {
   );
 }
 
-function Invetory() {
+function Inventory(products) {
   // filter on the whole inventory table
   // by status: in stock, air, sea
   // select "in stock" items now
   return (
     <div>
       <ProductList
-        products={[]}
+        products={products}
         columns={prepareHeaders([
-          "名称",
-          "Size",
-          "定价CAD",
-          "九折CAD",
-          "定价RMB",
-          "九折RMB",
+          "DiscountedPriceCAD",
         ])}
       />
     </div>
