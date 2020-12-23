@@ -54,15 +54,13 @@ function SideMenu() {
     // Create an scoped async function in the hook
     async function loadProducts() {
       let productsArray = [];
-      let docs = await repo.products.getAll().then(function(docs){
-        docs.forEach(function(doc){
-            productsArray.push(doc.data());
-        })
-        return productsArray;
+      let docs = await repo.products.getAll();
+      docs.forEach(function(doc){
+        productsArray.push(doc.data());
       });
       console.log("fuck this shit");
       console.log(docs);
-      setProducts(docs);
+      setProducts(productsArray);
     }
     // Execute the created function directly
     loadProducts();
