@@ -24,7 +24,7 @@ const normFile = (e) => {
   return e && e.fileList;
 };
 
-const TobeShipped = () => {
+const TobeShippedDetail = () => {
   const onFormLayoutChange = ({ size }) => {};
 
   return (
@@ -39,43 +39,52 @@ const TobeShipped = () => {
         <Divider plain>出单信息</Divider>
         <Form.Item label="递送方式" name="size">
           <Radio.Group>
-            <Radio.Button value="small">邮寄</Radio.Button>
-            <Radio.Button value="default">送货</Radio.Button>
-            <Radio.Button value="large">自取</Radio.Button>
+            <Radio.Button disabled={true} value="small">
+              邮寄
+            </Radio.Button>
+            <Radio.Button disabled={true} value="default">
+              送货
+            </Radio.Button>
+            <Radio.Button disabled={true} value="large">
+              自取
+            </Radio.Button>
           </Radio.Group>
         </Form.Item>
         <Form.Item label="姓名">
-          <Input />
+          <Input disabled={true} />
         </Form.Item>
         <Form.Item label="微信号">
-          <Input />
+          <Input disabled={true} />
         </Form.Item>
         <Form.Item label="地址">
-          <Input />
+          <Input disabled={true} />
         </Form.Item>
         <Form.Item label="邮编">
-          <Input />
+          <Input disabled={true} />
         </Form.Item>
         <Form.Item label="电话">
-          <Input />
+          <Input disabled={true} />
         </Form.Item>
         <Form.Item label="出单日期">
-          <Input />
+          <Input disabled={true} />
         </Form.Item>
         <Form.Item label="支付邮资">
-          <InputNumber />
+          <InputNumber disabled={true} />
         </Form.Item>
         <Form.Item label="加急发货">
-          <Switch />
+          <Switch disabled={true} />
         </Form.Item>
         <Form.Item label="礼物包装">
-          <Switch />
+          <Switch disabled={true} />
         </Form.Item>
 
         {/* 发货填写 */}
         <Divider plain>邮寄填写</Divider>
         <Form.Item label="实际邮资">
           <InputNumber />
+        </Form.Item>
+        <Form.Item label="Tracking">
+          <Input />
         </Form.Item>
         <Form.Item
           name="upload"
@@ -97,4 +106,4 @@ const TobeShipped = () => {
   );
 };
 
-export default TobeShipped;
+export default TobeShippedDetail;

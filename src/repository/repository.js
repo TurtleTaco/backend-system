@@ -1,4 +1,4 @@
-import Factory from "./factory/tableFactory"
+import Factory from "./factory/tableFactory";
 export default class Repository {
   orders;
   products;
@@ -8,16 +8,13 @@ export default class Repository {
     const firebase = require("firebase");
     require("firebase/firestore");
 
-
     if (!firebase.apps.length) {
-  
-    this.firebase = firebase.initializeApp({
-        apiKey:apiKey,
+      this.firebase = firebase.initializeApp({
+        apiKey: apiKey,
         authDomain: authDomain,
-        projectId: projectId
-    });
-}
-
+        projectId: projectId,
+      });
+    }
 
     this.db = firebase.firestore();
     var factory = new Factory(this.db);

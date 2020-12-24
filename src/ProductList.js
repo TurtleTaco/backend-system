@@ -7,7 +7,13 @@ export default function ProductList(props: ProductListProps) {
 
   return (
     <div className="ProductList">
-      <Table columns={columns} dataSource={products}></Table>
+      <Table
+        columns={columns}
+        dataSource={products}
+        pagination={{ pageSize: 50 }}
+        scroll={{ y: 240 }}
+        size="small"
+      ></Table>
     </div>
   );
 }

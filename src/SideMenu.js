@@ -15,7 +15,7 @@ import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 import ProductList from "./ProductList";
 import prepareHeaders from "./utilities/csvHeaderToTableHeader";
 import NewOrder from "./NewOrder";
-import TobeShipped from "./TobeShipped";
+import TobeShippedDetail from "./TobeShippedDetail";
 import Repo from "./repository/repository";
 
 const { SubMenu } = Menu;
@@ -42,30 +42,44 @@ function SideMenu() {
   // Declare a new state variable, which we'll call "count"
   const [collapsed, setSiderCollapse] = useState(false);
   var [products, setProducts] = useState([]);
+  var [orders, setOrders] = useState([]);
   const toggle = () => {
     setSiderCollapse(!collapsed);
   };
 
-  var repo = new Repo("AIzaSyB4WmRNMzNmBI5iERYj_Q-Bw-UpRSbBzz0", "fir-7b423.firebaseapp.com", "fir-7b423");
+  var repo = new Repo(
+    "AIzaSyB4WmRNMzNmBI5iERYj_Q-Bw-UpRSbBzz0",
+    "fir-7b423.firebaseapp.com",
+    "fir-7b423"
+  );
 
   // Similar to componentDidMount and componentDidUpdate:
 
-   useEffect(() => {
+  useEffect(() => {
     // Create an scoped async function in the hook
     async function loadProducts() {
       let productsArray = [];
-      let docs = await repo.products.getAll();
-      docs.forEach(function(doc){
-        productsArray.push(doc.data());
+      let ordersArray = [];
+
+      let productsDocs = await repo.products.getAll();
+      productsDocs.forEach(function (productsDocs) {
+        productsArray.push(productsDocs.data());
       });
-      console.log("fuck this shit");
-      console.log(docs);
+
+      let ordersDocs = await repo.orders.getAll();
+      ordersDocs.forEach(function (ordersDocs) {
+        ordersArray.push(ordersDocs.data());
+      });
+
+      console.log(productsDocs);
       setProducts(productsArray);
+      console.log(ordersDocs);
+      setOrders(ordersArray);
     }
     // Execute the created function directly
     loadProducts();
   }, []);
-  
+
   return (
     <Router>
       <Layout style={{ backgroundColor: "#fff" }}>
@@ -76,7 +90,7 @@ function SideMenu() {
           trigger={null}
         >
           <Menu
-            style={{ width: "100%", height: "100%" }}   
+            style={{ width: "100%", height: "100%" }}
             defaultSelectedKeys={activeDefaultSelectedKeys}
             defaultOpenKeys={["sub1", "sub2", "sub3"]}
             mode="inline"
@@ -162,9 +176,15 @@ function SideMenu() {
             <Switch>
               <Route path="/" component={Overview}>
                 <Route path="/Overview" component={Overview}></Route>
-                <Route path="/Inventory" component={() => Inventory(products)}></Route>
+                <Route
+                  path="/Inventory"
+                  component={() => Inventory(products)}
+                ></Route>
                 <Route path="/NewOrder" component={NewOrder}></Route>
-                <Route path="/TobeShipped" component={TobeShipped}></Route>
+                <Route
+                  path="/TobeShipped"
+                  component={() => TobeShipped(orders)}
+                ></Route>
                 <Route path="/InTransit" component={InTransit}></Route>
                 <Route path="/Finished" component={Finished}></Route>
                 <Route path="/Postage" component={Postage}></Route>
@@ -191,12 +211,60 @@ function Inventory(products) {
   // filter on the whole inventory table
   // by status: in stock, air, sea
   // select "in stock" items now
+
+  // populate 10% discount CAD, full price RMB and 10% discount RMB
+  // fetch for the latest currency exchange rate
+  var exchangeRate = 5.07;
+  // fetch("http://rate-exchange-1.appspot.com/currency?from=CAD&to=CNY")
+  //   .then((response) => response.json())
+  //   .then((data) => {
+  //     // exchangeRateJson = data;
+  //     console.log(data);
+  //   });
+  // console.log(exchangeRateJson);
+
+  for (var i = 0; i < products.length; i++) {
+    // console.log("CAD: " + products[i].CAD);
+    var priceCAD = parseInt(products[i]["CAD"]);
+    var priceRMB = priceCAD * exchangeRate;
+    products[i]["10%"] = priceCAD * 0.9;
+    products[i]["正价"] = priceRMB;
+    products[i]["九折"] = priceRMB * 0.9;
+  }
+
   return (
     <div>
       <ProductList
         products={products}
         columns={prepareHeaders([
-          "DiscountedPriceCAD",
+          "Name",
+          "S",
+          "M",
+          "L",
+          "F",
+          "CAD",
+          "10%",
+          "正价",
+          "九折",
+        ])}
+      />
+    </div>
+  );
+}
+
+function TobeShipped(orders) {
+  return (
+    <div>
+      <ProductList
+        products={orders}
+        columns={prepareHeaders([
+          "姓名",
+          "微信号",
+          "地址",
+          "邮编",
+          "日期",
+          "加急",
+          "礼物",
         ])}
       />
     </div>
