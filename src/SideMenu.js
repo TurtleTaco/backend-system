@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Layout, Menu } from "antd";
+import { Layout, Menu, Button } from "antd";
 import {
   AppstoreOutlined,
   PieChartOutlined,
@@ -33,6 +33,11 @@ function setSelectedOption(option) {
   console.log("save active option " + localStorage.getItem("SelectedOption"));
 }
 
+ async function increment(repo) {
+              let productsArray = [];
+              let docs = await repo.products.incrementSmall("ceO2r7lZbNJZTy5P3F13");
+}
+
 function SideMenu() {
   // restore to previously selected active tab upon refresh
   var activeDefaultSelectedKeys = [];
@@ -40,13 +45,12 @@ function SideMenu() {
   console.log(activeDefaultSelectedKeys);
 
   // Declare a new state variable, which we'll call "count"
+   const [repo, setRepo] = useState(new Repo("AIzaSyB4WmRNMzNmBI5iERYj_Q-Bw-UpRSbBzz0", "fir-7b423.firebaseapp.com", "fir-7b423"));
   const [collapsed, setSiderCollapse] = useState(false);
   var [products, setProducts] = useState([]);
   const toggle = () => {
     setSiderCollapse(!collapsed);
   };
-
-  var repo = new Repo("AIzaSyB4WmRNMzNmBI5iERYj_Q-Bw-UpRSbBzz0", "fir-7b423.firebaseapp.com", "fir-7b423");
 
   // Similar to componentDidMount and componentDidUpdate:
 
@@ -58,7 +62,6 @@ function SideMenu() {
       docs.forEach(function(doc){
         productsArray.push(doc.data());
       });
-      console.log("fuck this shit");
       console.log(docs);
       setProducts(productsArray);
     }
@@ -75,6 +78,11 @@ function SideMenu() {
           collapsed={collapsed}
           trigger={null}
         >
+
+          <Button type="primary" onClick = {() => {
+             increment(repo);
+          }}>Click To Increment</Button>
+
           <Menu
             style={{ width: "100%", height: "100%" }}   
             defaultSelectedKeys={activeDefaultSelectedKeys}
@@ -196,7 +204,9 @@ function Inventory(products) {
       <ProductList
         products={products}
         columns={prepareHeaders([
-          "DiscountedPriceCAD",
+          "S",
+          "M",
+          "L",
         ])}
       />
     </div>
