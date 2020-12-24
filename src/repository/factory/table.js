@@ -1,24 +1,23 @@
 export default class table {
-  collection;
-  constructor(collection) {
+  constructor(collection, db) {
     this.collection = collection;
+    this.db = db;
   }
 
   add(key, entity) {
-    var doc = this.collection.doc(key);
-    doc.set(entity);
+    var docRef = this.collection.doc(key);
+
+    return this.db.runTransaction(function (transaction) {
+      return transaction.get(docRef).then(function (doc) {
+        if (!doc.exists) {
+          doc.set(entity);
+        }
+      });
+    });
   }
 
   removeByKey(key) {
-    return this.collection
-      .doc(key)
-      .delete()
-      .then(function () {
-        console.log("Document successfully deleted!");
-      })
-      .catch(function (error) {
-        console.error("Error removing document: ", error);
-      });
+    return this.collection.doc(key).delete();
   }
 
   getAll() {

@@ -2,12 +2,13 @@ import { Space } from "antd";
 export default function prepareHeaders(properties) {
   return Array.prototype.map.call(properties, function (property) {
     var lowerProperty = property;
-    var nameTemplate = {
+    var itemNameTemplate = {
       title: property,
       dataIndex: lowerProperty,
       key: lowerProperty,
       width: 100,
       fixed: "left",
+      ellipsis: false,
     };
     var sizeTemplate = {
       title: property,
@@ -23,10 +24,32 @@ export default function prepareHeaders(properties) {
       width: 50,
       ellipsis: true,
     };
+    var wechatIDTemplate = {
+      title: property,
+      dataIndex: lowerProperty,
+      key: lowerProperty,
+      width: 50,
+      fixed: "left",
+      ellipsis: true,
+    };
+    var addressTemplate = {
+      title: property,
+      dataIndex: lowerProperty,
+      key: lowerProperty,
+      width: 100,
+      ellipsis: false,
+    };
+    var statusTemplate = {
+      title: property,
+      dataIndex: lowerProperty,
+      key: lowerProperty,
+      width: 25,
+      ellipsis: false,
+    };
 
     switch (property) {
       case "Name":
-        return nameTemplate;
+        return itemNameTemplate;
         break;
       case "S":
         return sizeTemplate;
@@ -45,14 +68,30 @@ export default function prepareHeaders(properties) {
         return priceTemplate;
         break;
 
+      case "微信号":
+        return wechatIDTemplate;
+        break;
+
+      case "地址":
+        return addressTemplate;
+        break;
+
+      case "加急":
+        return statusTemplate;
+        break;
+
+      case "礼物":
+        return statusTemplate;
+        break;
+
       case "ExchangeRate":
-        nameTemplate.render = (text, record) => (
+        itemNameTemplate.render = (text, record) => (
           <Space size="middle">
             <a>Invite {record.name}</a>
             <a>Delete</a>
           </Space>
         );
-        return nameTemplate;
+        return itemNameTemplate;
         break;
 
       default:
