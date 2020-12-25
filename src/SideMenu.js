@@ -16,7 +16,7 @@ import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 import ProductList from "./ProductList";
 import prepareHeaders from "./utilities/csvHeaderToTableHeader";
 import NewOrder from "./NewOrder";
-import TobeShippedDetail from "./TobeShippedDetail";
+import Air from "./Air";
 import Repo from "./repository/repository";
 
 const { SubMenu } = Menu;
@@ -56,6 +56,15 @@ function SideMenu() {
   const [collapsed, setSiderCollapse] = useState(false);
   var [products, setProducts] = useState([]);
   var [orders, setOrders] = useState([]);
+
+  // trigger refetch on data, and rerender all data display
+  // when approriate -> refresh is toggled
+  // refresh in useEffect dependency list, change of refresh -> trigger useEffect
+  // -> refetch data -> change products + orders state
+  // state change -> trigger rerender on data display
+  var [refresh, setRefresh] = useState(false);
+
+  // toggle sider collapse and uncollapse
   const toggle = () => {
     setSiderCollapse(!collapsed);
   };
@@ -63,6 +72,9 @@ function SideMenu() {
   // Similar to componentDidMount and componentDidUpdate:
 
   useEffect(() => {
+    // unset refresh flag
+    setRefresh(false);
+    console.log("useEffect retrigger " + refresh);
     // Create an scoped async function in the hook
     async function loadProducts() {
       let productsArray = [];
@@ -70,22 +82,37 @@ function SideMenu() {
 
       let productsDocs = await repo.products.getAll();
       productsDocs.forEach(function (productsDocs) {
-        productsArray.push(productsDocs.data());
+        // add product entry ID (key) to the data field
+        // this allow easier update product entry
+        let productsData = productsDocs.data();
+        productsData["ID"] = productsDocs.id;
+        productsArray.push(productsData);
       });
+
+      let productsAll = await repo.products.getAllProducts();
 
       let ordersDocs = await repo.orders.getAll();
       ordersDocs.forEach(function (ordersDocs) {
-        ordersArray.push(ordersDocs.data());
+        // add entry ID (key) to the data field
+        // this allows easier update to existing order
+        let orderData = ordersDocs.data();
+        orderData["ID"] = ordersDocs.id;
+        ordersArray.push(orderData);
       });
 
-      console.log(productsDocs);
+      // console.log(productsDocs);
       setProducts(productsArray);
-      console.log(ordersDocs);
+      // console.log(ordersDocs);
       setOrders(ordersArray);
+
+      // // print tobeshipped orders
+      // for (var i = 0; i < orders.length; i++) {
+      //   if (orders[i]["Tracking"] == "") console.log(orders[i]);
+      // }
     }
     // Execute the created function directly
     loadProducts();
-  }, []);
+  }, [refresh]);
 
   return (
     <Router>
@@ -94,24 +121,27 @@ function SideMenu() {
           style={{ width: 300, height: "100vh", backgroundColor: "#fff" }}
           collapsible
           collapsed={collapsed}
-          trigger={null}
+          // trigger={null}
+          onCollapse={() => {
+            setSiderCollapse(!collapsed);
+          }}
         >
-          <Button
+          {/* <Button
             type="primary"
             onClick={() => {
               increment(repo);
             }}
           >
             Click To Increment
-          </Button>
+          </Button> */}
 
           <Menu
-            style={{ width: "100%", height: "100%" }}
+            style={{ width: "100%", height: "90%" }}
             defaultSelectedKeys={activeDefaultSelectedKeys}
             defaultOpenKeys={["sub1", "sub2", "sub3"]}
             mode="inline"
           >
-            <Menu.Item
+            {/* <Menu.Item
               key="overview"
               icon={<PieChartOutlined />}
               onClick={() => setSelectedOption("overview")}
@@ -119,48 +149,96 @@ function SideMenu() {
               <Link to="/Overview">
                 <span>Overview</span>
               </Link>
-            </Menu.Item>
+            </Menu.Item> */}
             <SubMenu key="sub1" icon={<MailOutlined />} title="库存">
-              <Menu.Item key="1" onClick={() => setSelectedOption("1")}>
+              <Menu.Item
+                key="1"
+                onClick={() => {
+                  setSelectedOption("1");
+                  setRefresh(true);
+                }}
+              >
                 <Link to="/Inventory">
                   <span>多伦多现货</span>
                 </Link>
               </Menu.Item>
             </SubMenu>
             <SubMenu key="sub2" icon={<AppstoreOutlined />} title="出单">
-              <Menu.Item key="2" onClick={() => setSelectedOption("2")}>
+              <Menu.Item
+                key="2"
+                onClick={() => {
+                  setSelectedOption("2");
+                  setRefresh(true);
+                }}
+              >
                 <Link to="/NewOrder">
                   <span>生成订单</span>
                 </Link>
               </Menu.Item>
-              <Menu.Item key="3" onClick={() => setSelectedOption("3")}>
+              <Menu.Item
+                key="3"
+                onClick={() => {
+                  setSelectedOption("3");
+                  setRefresh(true);
+                }}
+              >
                 <Link to="/TobeShipped">
                   <span>待邮寄</span>
                 </Link>
               </Menu.Item>
-              <Menu.Item key="4" onClick={() => setSelectedOption("4")}>
+              <Menu.Item
+                key="4"
+                onClick={() => {
+                  setSelectedOption("4");
+                  setRefresh(true);
+                }}
+              >
                 <Link to="/InTransit">
                   <span>在途</span>
                 </Link>
               </Menu.Item>
-              <Menu.Item key="5" onClick={() => setSelectedOption("5")}>
+              <Menu.Item
+                key="5"
+                onClick={() => {
+                  setSelectedOption("5");
+                  setRefresh(true);
+                }}
+              >
                 <Link to="/Finished">
                   <span>完成</span>
                 </Link>
               </Menu.Item>
-              <Menu.Item key="6" onClick={() => setSelectedOption("6")}>
+              <Menu.Item
+                key="6"
+                onClick={() => {
+                  setSelectedOption("6");
+                  setRefresh(true);
+                }}
+              >
                 <Link to="/Postage">
                   <span>邮资记录</span>
                 </Link>
               </Menu.Item>
             </SubMenu>
             <SubMenu key="sub3" icon={<SettingOutlined />} title="入库">
-              <Menu.Item key="7" onClick={() => setSelectedOption("7")}>
+              <Menu.Item
+                key="7"
+                onClick={() => {
+                  setSelectedOption("7");
+                  setRefresh(true);
+                }}
+              >
                 <Link to="/Air">
                   <span>空运</span>
                 </Link>
               </Menu.Item>
-              <Menu.Item key="8" onClick={() => setSelectedOption("8")}>
+              <Menu.Item
+                key="8"
+                onClick={() => {
+                  setSelectedOption("8");
+                  setRefresh(true);
+                }}
+              >
                 <Link to="/Sea">
                   <span>海运</span>
                 </Link>
@@ -186,7 +264,7 @@ function SideMenu() {
             style={{
               minHeight: "90vh",
               backgroundColor: "#fff",
-              padding: "0px 24px 0px 24px",
+              padding: "5px 10px 0px 10px",
             }}
           >
             <Switch>
@@ -194,17 +272,26 @@ function SideMenu() {
                 <Route path="/Overview" component={Overview}></Route>
                 <Route
                   path="/Inventory"
-                  component={() => Inventory(products)}
+                  component={() => Inventory(products, setRefresh)}
                 ></Route>
-                <Route path="/NewOrder" component={NewOrder}></Route>
+                <Route
+                  path="/NewOrder"
+                  component={() => NewOrder(setRefresh)}
+                ></Route>
                 <Route
                   path="/TobeShipped"
-                  component={() => TobeShipped(orders)}
+                  component={() => TobeShipped(orders, setRefresh)}
                 ></Route>
-                <Route path="/InTransit" component={InTransit}></Route>
-                <Route path="/Finished" component={Finished}></Route>
+                <Route
+                  path="/InTransit"
+                  component={() => InTransit(orders, setRefresh)}
+                ></Route>
+                <Route
+                  path="/Finished"
+                  component={() => Finished(orders, setRefresh)}
+                ></Route>
                 <Route path="/Postage" component={Postage}></Route>
-                <Route path="/Air" component={Air}></Route>
+                <Route path="/Air" component={() => Air(setRefresh)}></Route>
                 <Route path="/Sea" component={Sea}></Route>
               </Route>
             </Switch>
@@ -223,10 +310,12 @@ function Overview() {
   );
 }
 
-function Inventory(products) {
+function Inventory(products, setRefresh) {
   // filter on the whole inventory table
   // by status: in stock, air, sea
   // select "in stock" items now
+
+  let type = "inventory";
 
   // populate 10% discount CAD, full price RMB and 10% discount RMB
   // fetch for the latest currency exchange rate
@@ -262,49 +351,103 @@ function Inventory(products) {
           "正价",
           "九折",
         ])}
+        listType={type}
       />
     </div>
   );
 }
 
-function TobeShipped(orders) {
+function TobeShipped(orders, setRefresh) {
+  let type = "toBeShipped";
+  let notShippedOrders = [];
+
   for (var i = 0; i < orders.length; i++) {
-    let urgent = orders[i]["加急"].toString();
-    let gift = orders[i]["礼物"].toString();
-    orders[i]["加急"] = urgent == "true" ? "✓" : "✗";
-    orders[i]["礼物"] = gift == "true" ? "✓" : "✗";
+    if (orders[i]["Tracking"] == "")
+      // not shipped, display in TobeShipped
+      notShippedOrders.push(orders[i]);
   }
 
   return (
     <div>
       <ProductList
-        products={orders}
+        products={notShippedOrders}
         columns={prepareHeaders([
           "姓名",
           "微信号",
           "地址",
-          "邮编",
+          "寄送",
           "日期",
           "加急",
           "礼物",
         ])}
+        listType={type}
+        sideMenuSetRefresh={setRefresh}
       />
     </div>
   );
 }
 
-function InTransit() {
+function InTransit(orders, setRefresh) {
+  let type = "inTransit";
+  let inTransitOrders = [];
+
+  for (var i = 0; i < orders.length; i++) {
+    if (orders[i]["Tracking"] != "")
+      if (orders[i]["完成"] != "Y")
+        // shipped, display in InTransit table
+        inTransitOrders.push(orders[i]);
+  }
+
+  console.log("in transit");
+  console.log(orders);
+  console.log("continue");
+  console.log(inTransitOrders);
+
   return (
     <div>
-      <h2>InTransit</h2>
+      <ProductList
+        products={inTransitOrders}
+        columns={prepareHeaders([
+          "姓名",
+          "微信号",
+          "地址",
+          "寄送",
+          "日期",
+          "加急",
+          "礼物",
+        ])}
+        listType={type}
+        sideMenuSetRefresh={setRefresh}
+      />
     </div>
   );
 }
 
-function Finished() {
+function Finished(orders, setRefresh) {
+  let type = "Finished";
+  let finishedOrders = [];
+
+  for (var i = 0; i < orders.length; i++) {
+    if (orders[i]["完成"] == "Y")
+      // shipped, display in InTransit table
+      finishedOrders.push(orders[i]);
+  }
+
   return (
     <div>
-      <h2>Finished</h2>
+      <ProductList
+        products={finishedOrders}
+        columns={prepareHeaders([
+          "姓名",
+          "微信号",
+          "地址",
+          "寄送",
+          "日期",
+          "Tracking",
+        ])}
+        listType={type}
+        sideMenuSetRefresh={setRefresh}
+      />
     </div>
   );
 }
@@ -313,14 +456,6 @@ function Postage() {
   return (
     <div>
       <h2>Postage</h2>
-    </div>
-  );
-}
-
-function Air() {
-  return (
-    <div>
-      <h2>Air</h2>
     </div>
   );
 }

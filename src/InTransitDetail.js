@@ -15,29 +15,11 @@ import {
   Divider,
 } from "antd";
 import { UploadOutlined, InboxOutlined } from "@ant-design/icons";
+import Iframe from "react-iframe";
 
 import Repo from "./repository/repository";
 
 const { Option } = Select;
-
-// tracking prefix is by default canada post
-// consistent with select defult value
-// on select option change, the trackingPrefix is changed accordingly
-var trackingPrefix = "https://www.canadapost.ca/trackweb/en#/details/";
-const trackAddressBefore = (
-  <Select
-    defaultValue="https://www.canadapost.ca/trackweb/en#/details/"
-    className="select-before"
-    onChange={(value, e) => (trackingPrefix = value)}
-  >
-    <Option value="https://www.canadapost.ca/trackweb/en#/details/">
-      Canada Post
-    </Option>
-    <Option value="https://tools.usps.com/go/TrackConfirmAction?tLabels=">
-      USPS
-    </Option>
-  </Select>
-);
 
 const normFile = (e) => {
   console.log("Upload event:", e);
@@ -47,11 +29,7 @@ const normFile = (e) => {
   return e && e.fileList;
 };
 
-function shippingInfoSubmit(object, ID, sideMenuSetRefresh) {
-  console.log(object);
-  // add tracking website prefix
-  object["Tracking"] = trackingPrefix + object["Tracking"];
-
+function endOrder(ID, sideMenuSetRefresh) {
   // add this to order db
   let repo = new Repo(
     "AIzaSyB4WmRNMzNmBI5iERYj_Q-Bw-UpRSbBzz0",
@@ -60,13 +38,15 @@ function shippingInfoSubmit(object, ID, sideMenuSetRefresh) {
   );
 
   // add tracking website + actual postage to the existing order
-  // then -> trigger side menu refresh state change
-  repo.orders
-    .insertOrderObjectByKey(object, ID)
-    .then((e) => sideMenuSetRefresh(true));
+  repo.orders.finishOrder(ID).then((e) => sideMenuSetRefresh(true));
 }
 
-const TobeShippedDetail = (props: TobeShippedDetailProps) => {
+function openTrackingLink(link) {
+  console.log("Clicked");
+  window.open(link);
+}
+
+const InTransitDetail = (props: TobeShippedDetailProps) => {
   const onFormLayoutChange = ({ size }) => {};
   console.log(props.test);
 
@@ -87,7 +67,48 @@ const TobeShippedDetail = (props: TobeShippedDetailProps) => {
         onValuesChange={onFormLayoutChange}
         key={props.test}
       >
-        <Divider plain>出单信息</Divider>
+        <Form.Item label="问候">
+          <Input
+            disabled={true}
+            style={{ color: "#000000" }}
+            value={
+              "宝宝您的订单已经发出 详情可以在这个link中查询！" +
+              props.test["Tracking"]
+            }
+          />
+        </Form.Item>
+
+        <Form.Item label="Action">
+          <Button
+            type="primary"
+            onClick={() => {
+              navigator.clipboard.writeText(
+                "宝宝您的订单已经发出 详情可以在这个link中查询！" +
+                  props.test["Tracking"]
+              );
+            }}
+          >
+            拷贝问候
+          </Button>
+
+          <Button
+            type="primary"
+            onClick={() => openTrackingLink(props.test["Tracking"])}
+            style={{ marginLeft: "20px" }}
+          >
+            跟踪订单
+          </Button>
+
+          <Button
+            type="primary"
+            onClick={() => endOrder(props.test["ID"], props.sideMenuSetRefresh)}
+            style={{ marginLeft: "20px" }}
+          >
+            完成订单
+          </Button>
+        </Form.Item>
+
+        <Divider plain>出单信息汇总</Divider>
         <Form.Item label="递送方式">
           <Radio.Group value={props.test["寄送"]}>
             <Radio.Button value="邮寄">邮寄</Radio.Button>
@@ -166,17 +187,20 @@ const TobeShippedDetail = (props: TobeShippedDetailProps) => {
           />
         </Form.Item>
 
-        {/* 发货填写 */}
-        <Divider plain>邮寄填写</Divider>
         <Form.Item label="实际邮资">
           <InputNumber
-            onChange={(e) => (submitObject["实际邮资"] = e.toString())}
+            disabled={true}
+            style={{ color: "#000000" }}
+            value={props.test["实际邮资"]}
           />
         </Form.Item>
+
         <Form.Item label="Tracking">
           <Input
-            addonBefore={trackAddressBefore}
-            onChange={(e) => (submitObject["Tracking"] = e.target.value)}
+            disabled={true}
+            style={{ color: "#000000" }}
+            href={props.test["Tracking"]}
+            value={props.test["Tracking"]}
           />
         </Form.Item>
 
@@ -191,24 +215,9 @@ const TobeShippedDetail = (props: TobeShippedDetailProps) => {
             <Button icon={<UploadOutlined />}>Click to upload</Button>
           </Upload>
         </Form.Item> */}
-
-        <Form.Item label="Submit">
-          <Button
-            type="primary"
-            onClick={() =>
-              shippingInfoSubmit(
-                submitObject,
-                props.test["ID"],
-                props.sideMenuSetRefresh
-              )
-            }
-          >
-            提交
-          </Button>
-        </Form.Item>
       </Form>
     </>
   );
 };
 
-export default TobeShippedDetail;
+export default InTransitDetail;

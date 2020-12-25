@@ -35,7 +35,7 @@ function newOrderSubmit(object, sideMenuSetRefresh) {
   });
 }
 
-const NewOrder = (setRefresh) => {
+const Air = (setRefresh) => {
   const onFormLayoutChange = ({ size }) => {};
   const { SHOW_PARENT } = TreeSelect;
 
@@ -139,4 +139,4 @@ const NewOrder = (setRefresh) => {
   );
 };
 
-export default NewOrder;
+export default Air;
