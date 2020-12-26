@@ -94,6 +94,7 @@ const NewOrder = (setRefresh, cartProducts) => {
         size: singleProduct[2],
         ID: singleProduct[1],
       });
+      tableRowKey++;
     });
     console.log(cartData);
     return cartData;
