@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Table, Tag, Space, Menu, Dropdown } from "antd";
+import { Table, Tag, Space, Menu, Dropdown, Input, Button } from "antd";
 
 //////////////////// Detailed toBeShipped View ////////////////////
 import TobeShippedDetail from "./TobeShippedDetail";
@@ -17,11 +17,11 @@ export default function ProductList(props: ProductListProps) {
   // console.log(products);
 
   const addToCart = (optionClickEvent, productID, productName) => {
-    // eg. [essential, a23909sud0afsj, S:1]
+    // eg. [essential, a23909sud0afsj, S]
     var orderDetail = [
       productName,
       productID,
-      optionClickEvent.target.innerHTML,
+      optionClickEvent.target.innerHTML.charAt(0),
     ];
     console.log(orderDetail);
     props.appendToCartProducts(orderDetail);
@@ -82,7 +82,58 @@ export default function ProductList(props: ProductListProps) {
                 onMouseLeave: (event) => {}, // mouse leave row
               };
             }}
-            // columns={columns}
+            // columns={[
+            //   {
+            //     title: "Name",
+            //     dataIndex: "Name",
+            //     // sorter: {
+            //     //   compare: (a, b) => a.Name.length - b.Name.length,
+            //     // },
+            //   },
+            //   {
+            //     title: "S",
+            //     dataIndex: "S",
+            //     sorter: {
+            //       compare: (a, b) => a.S - b.S,
+            //     },
+            //   },
+            //   {
+            //     title: "M",
+            //     dataIndex: "M",
+            //     sorter: {
+            //       compare: (a, b) => a.M - b.M,
+            //     },
+            //   },
+            //   {
+            //     title: "L",
+            //     dataIndex: "L",
+            //     sorter: {
+            //       compare: (a, b) => a.L - b.L,
+            //     },
+            //   },
+            //   {
+            //     title: "F",
+            //     dataIndex: "F",
+            //     sorter: {
+            //       compare: (a, b) => a.F - b.F,
+            //     },
+            //   },
+            //   {
+            //     title: "CAD",
+            //     dataIndex: "CAD",
+            //     sorter: {
+            //       compare: (a, b) => a.CAD - b.CAD,
+            //     },
+            //   },
+            //   {
+            //     title: "RMB",
+            //     dataIndex: "RMB",
+            //   },
+            //   {
+            //     title: "九折",
+            //     dataIndex: "九折",
+            //   },
+            // ]}
             dataSource={products}
             pagination={{ pageSize: 50 }}
             // scroll={{ y: 240 }}
@@ -109,11 +160,23 @@ export default function ProductList(props: ProductListProps) {
                   </Dropdown>
                 </Space>
               )}
+              sorter={(a, b) => {
+                console.log(a["Name"] + "   " + b["Name"]);
+                console.log(a["Name"].localeCompare(b["Name"]));
+                a["Name"].localeCompare(b["Name"]);
+              }}
             />
 
             {["S", "M", "L", "F", "CAD", "10%", "RMB", "九折"].map(
               (catagory) => (
-                <Column title={catagory} dataIndex={catagory} />
+                <Column
+                  title={catagory}
+                  dataIndex={catagory}
+                  sorter={(a, b) => {
+                    // console.log(a["S"]);
+                    a[catagory].localeCompare(b[catagory]);
+                  }}
+                />
               )
             )}
           </Table>
