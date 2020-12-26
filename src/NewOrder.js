@@ -11,6 +11,8 @@ import {
   TreeSelect,
   Switch,
   message,
+  Divider,
+  Table,
 } from "antd";
 
 import Repo from "./repository/repository";
@@ -35,7 +37,7 @@ function newOrderSubmit(object, sideMenuSetRefresh) {
   });
 }
 
-const NewOrder = (setRefresh) => {
+const NewOrder = (setRefresh, cartProducts) => {
   const onFormLayoutChange = ({ size }) => {};
   const { SHOW_PARENT } = TreeSelect;
 
@@ -51,11 +53,66 @@ const NewOrder = (setRefresh) => {
     寄送: "",
     微信号: "",
     支付邮资: "",
+    交易金额: "",
     日期: "",
     礼物: "",
     邮编: "",
     邮资凭据: "",
   });
+
+  // cart products display
+  const [selectionType, setSelectionType] = useState("checkbox");
+
+  const columns = [
+    {
+      title: "Product",
+      dataIndex: "product",
+      // enable the product name to be clickable
+      render: (text) => <a>{text}</a>,
+    },
+    {
+      title: "Size",
+      dataIndex: "size",
+    },
+    {
+      title: "Product ID",
+      dataIndex: "ID",
+    },
+  ];
+
+  const cartData = [];
+  const constructCartData = (cartProductList) => {
+    var tableRowKey = 0;
+    cartProductList.map((singleProduct) => {
+      // eg: singleProduct
+      // 0: "87mm mmlg黑色白logo长袖T恤新款"
+      // 1: "MLzjrIcvKSHxcb5EqErI"
+      // 2: "S: 1"
+      cartData.push({
+        key: tableRowKey.toString(),
+        product: singleProduct[0],
+        size: singleProduct[2],
+        ID: singleProduct[1],
+      });
+    });
+    console.log(cartData);
+    return cartData;
+  };
+
+  // rowSelection object indicates the need for row selection
+  const rowSelection = {
+    onChange: (selectedRowKeys, selectedRows) => {
+      console.log(
+        `selectedRowKeys: ${selectedRowKeys}`,
+        "selectedRows: ",
+        selectedRows
+      );
+    },
+    getCheckboxProps: (record) => ({
+      disabled: record.name === "Disabled User", // Column configuration not to be checked
+      name: record.name,
+    }),
+  };
 
   return (
     <>
@@ -66,6 +123,19 @@ const NewOrder = (setRefresh) => {
         initialValues={{}}
         onValuesChange={onFormLayoutChange}
       >
+        {/* List of items in the cart */}
+        <div>
+          <Table
+            rowSelection={{
+              type: selectionType,
+              ...rowSelection,
+            }}
+            columns={columns}
+            dataSource={constructCartData(cartProducts)}
+            style={{ padding: "0px 24px 0px 24px" }}
+          />
+        </div>
+
         <Form.Item
           id="shippingMethod"
           label="寄送"
@@ -106,6 +176,11 @@ const NewOrder = (setRefresh) => {
         <Form.Item label="支付邮资">
           <InputNumber
             onChange={(e) => (submitObject["支付邮资"] = e.toString())}
+          />
+        </Form.Item>
+        <Form.Item label="交易金额">
+          <InputNumber
+            onChange={(e) => (submitObject["交易金额"] = e.toString())}
           />
         </Form.Item>
         <Form.Item label="加急发货">

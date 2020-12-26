@@ -47,7 +47,7 @@ export default class table {
         let docRef = collection.doc(key);
 
         docRef.get().then((docSnapshot) => {
-          console.log(docSnapshot.data());
+          console.log(docSnapshot.id);
         });
       });
     });

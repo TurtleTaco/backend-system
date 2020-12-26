@@ -3,7 +3,7 @@
 .trigger {
   font-size: 18px;
   line-height: 18px;
-  padding: 0 24px 0px 10px;
+  padding: 0 24px 0px 24px;
   cursor: pointer;
   transition: color 0.3s;
 }
@@ -20,5 +20,10 @@
 
 .ant-layout-sider-trigger {
   background-color: #fff;
+  color: #000000;
+}
+
+/* Overwrite cart pop up menu title color */
+.ant-menu-item-group-title {
   color: #000000;
 }

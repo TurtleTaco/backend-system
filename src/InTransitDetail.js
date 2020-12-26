@@ -13,6 +13,7 @@ import {
   Upload,
   Descriptions,
   Divider,
+  message,
 } from "antd";
 import { UploadOutlined, InboxOutlined } from "@ant-design/icons";
 import Iframe from "react-iframe";
@@ -38,7 +39,11 @@ function endOrder(ID, sideMenuSetRefresh) {
   );
 
   // add tracking website + actual postage to the existing order
-  repo.orders.finishOrder(ID).then((e) => sideMenuSetRefresh(true));
+  repo.orders.finishOrder(ID).then((e) => {
+    sideMenuSetRefresh(true);
+    // alert for order maked as finish
+    message.info("Marked Order as Completed");
+  });
 }
 
 function openTrackingLink(link) {
@@ -86,6 +91,8 @@ const InTransitDetail = (props: TobeShippedDetailProps) => {
                 "宝宝您的订单已经发出 详情可以在这个link中查询！" +
                   props.test["Tracking"]
               );
+              // alert for successful copy
+              message.info("Copied Greeting");
             }}
           >
             拷贝问候

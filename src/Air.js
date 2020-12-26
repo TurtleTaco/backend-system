@@ -18,10 +18,6 @@ import Repo from "./repository/repository";
 function newOrderSubmit(object, sideMenuSetRefresh) {
   console.log(object);
 
-  // if 礼物 / 加急 is empty, meaning they are not required
-  if (object["加急"] == "") object["加急"] = "N";
-  if (object["礼物"] == "") object["礼物"] = "N";
-
   // add this to order db
   let repo = new Repo(
     "AIzaSyB4WmRNMzNmBI5iERYj_Q-Bw-UpRSbBzz0",
@@ -31,30 +27,72 @@ function newOrderSubmit(object, sideMenuSetRefresh) {
   repo.orders.add(object).then((e) => {
     sideMenuSetRefresh(true);
     // alert for correct submision and clears the form
-    message.info("New Order Submitted");
+    message.info("New Item Added");
   });
 }
 
-const Air = (setRefresh) => {
+function onChange() {}
+
+function selectionArea(props) {
+  return (
+    <Select
+      mode="multiple"
+      size="default"
+      placeholder="Please select"
+      defaultValue={[]}
+      //   onChange={onChange}
+      style={{ width: "100%", paddingLeft: "16px", paddingRight: "16px" }}
+    >
+      {props.products}
+    </Select>
+  );
+}
+
+const Air = (existingProductList, setRefresh) => {
   const onFormLayoutChange = ({ size }) => {};
-  const { SHOW_PARENT } = TreeSelect;
+  const { Option } = Select;
+  const [numSelectionFields, setnumSelectionFields] = useState([""]);
+
+  console.log(existingProductList);
+
+  // construct products options
+  const children = [];
+  for (let i = 0; i < existingProductList.length; i++) {
+    if (existingProductList[i]["S"] != "0")
+      children.push(
+        <Option key={existingProductList[i]["ID"] + "S"}>
+          {existingProductList[i]["Name"] + " S" + existingProductList[i]["S"]}
+        </Option>
+      );
+    if (existingProductList[i]["M"] != "0")
+      children.push(
+        <Option key={existingProductList[i]["ID"] + "M"}>
+          {existingProductList[i]["Name"] + " M" + existingProductList[i]["S"]}
+        </Option>
+      );
+    if (existingProductList[i]["L"] != "0")
+      children.push(
+        <Option key={existingProductList[i]["ID"] + "L"}>
+          {existingProductList[i]["Name"] + " L" + existingProductList[i]["S"]}
+        </Option>
+      );
+    if (existingProductList[i]["F"] != "0")
+      children.push(
+        <Option key={existingProductList[i]["ID"] + "F"}>
+          {existingProductList[i]["Name"] + " F" + existingProductList[i]["S"]}
+        </Option>
+      );
+  }
 
   // hold form details
+  var [newItem, setNewItem] = useState("N");
   const [submitObject, setSubmitObject] = useState({
-    Tel: "",
-    Tracking: "",
-    加急: "",
-    发票: "",
-    地址: "",
-    姓名: "",
-    实际邮资: "",
-    寄送: "",
-    微信号: "",
-    支付邮资: "",
-    日期: "",
-    礼物: "",
-    邮编: "",
-    邮资凭据: "",
+    Name: "",
+    S: "",
+    M: "",
+    L: "",
+    F: "",
+    CAD: "",
   });
 
   return (
@@ -66,74 +104,60 @@ const Air = (setRefresh) => {
         initialValues={{}}
         onValuesChange={onFormLayoutChange}
       >
-        <Form.Item
-          id="shippingMethod"
-          label="寄送"
-          onChange={(e) => (submitObject["寄送"] = e.target.value)}
+        <Select
+          mode="multiple"
+          size="default"
+          placeholder="Please select"
+          defaultValue={[]}
+          //   onChange={onChange}
+          style={{
+            width: "100%",
+            paddingLeft: "16px",
+            paddingRight: "16px",
+          }}
         >
-          <Radio.Group>
-            <Radio.Button value="邮寄">邮寄</Radio.Button>
-            <Radio.Button value="送货">送货</Radio.Button>
-            <Radio.Button value="自取">自取</Radio.Button>
-          </Radio.Group>
-        </Form.Item>
-        <Form.Item label="姓名">
-          <Input
-            id="name"
-            onChange={(e) => (submitObject["姓名"] = e.target.value)}
-          />
-        </Form.Item>
-        <Form.Item label="微信号">
-          <Input
-            id="wechatID"
-            onChange={(e) => (submitObject["微信号"] = e.target.value)}
-          />
-        </Form.Item>
-        <Form.Item label="地址">
-          <Input onChange={(e) => (submitObject["地址"] = e.target.value)} />
-        </Form.Item>
-        <Form.Item label="邮编">
-          <Input onChange={(e) => (submitObject["邮编"] = e.target.value)} />
-        </Form.Item>
-        <Form.Item label="电话">
-          <Input onChange={(e) => (submitObject["Tel"] = e.target.value)} />
-        </Form.Item>
-        <Form.Item label="出单日期">
-          <DatePicker
-            onChange={(e) => (submitObject["日期"] = e._d.toString())}
-          />
-        </Form.Item>
-        <Form.Item label="支付邮资">
-          <InputNumber
-            onChange={(e) => (submitObject["支付邮资"] = e.toString())}
-          />
-        </Form.Item>
-        <Form.Item label="加急发货">
-          <Switch
-            onClick={(status, e) =>
-              status == true
-                ? (submitObject["加急"] = "Y")
-                : (submitObject["加急"] = "N")
-            }
-          />
-        </Form.Item>
-        <Form.Item label="礼物包装">
-          <Switch
-            onClick={(status, e) =>
-              status == true
-                ? (submitObject["礼物"] = "Y")
-                : (submitObject["礼物"] = "N")
-            }
-          />
-        </Form.Item>
-        <Form.Item label="Submit">
+          {children}
+        </Select>
+        <div label="Action" style={{ paddingLeft: "16px", marginTop: "20px" }}>
           <Button
             type="primary"
-            onClick={() => newOrderSubmit(submitObject, setRefresh)}
+            onClick={() => {
+              numSelectionFields.push("");
+              console.log(numSelectionFields.length);
+            }}
+          >
+            Add
+          </Button>
+          <Button
+            type="primary"
+            onClick={() => {
+              newOrderSubmit(submitObject, setRefresh);
+            }}
+            style={{ marginLeft: "20px" }}
           >
             提交
           </Button>
-        </Form.Item>
+        </div>
+        {/* {numSelectionFields.forEach((key) => {
+          console.log(key);
+          return (
+            <Select
+              id={key}
+              mode="multiple"
+              size="default"
+              placeholder="Please select"
+              defaultValue={[]}
+              //   onChange={onChange}
+              style={{
+                width: "100%",
+                paddingLeft: "16px",
+                paddingRight: "16px",
+              }}
+            >
+              {children}
+            </Select>
+          );
+        })} */}
       </Form>
     </>
   );

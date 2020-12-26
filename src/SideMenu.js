@@ -8,11 +8,13 @@ import {
   MenuUnfoldOutlined,
   MenuFoldOutlined,
   CheckOutlined,
+  ShoppingCartOutlined,
 } from "@ant-design/icons";
 import "./SideMenu.css";
 import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 
 /////////////////// Page Components ////////////////
+import Overview from "./Overview";
 import ProductList from "./ProductList";
 import prepareHeaders from "./utilities/csvHeaderToTableHeader";
 import NewOrder from "./NewOrder";
@@ -57,6 +59,12 @@ function SideMenu() {
   var [products, setProducts] = useState([]);
   var [orders, setOrders] = useState([]);
 
+  // Cart status
+  var [cartProducts, setCartProducts] = useState([]);
+  const appendToCartProducts = (newOrder) => {
+    setCartProducts([...cartProducts, newOrder]);
+  };
+
   // trigger refetch on data, and rerender all data display
   // when approriate -> refresh is toggled
   // refresh in useEffect dependency list, change of refresh -> trigger useEffect
@@ -89,7 +97,8 @@ function SideMenu() {
         productsArray.push(productsData);
       });
 
-      let productsAll = await repo.products.getAllProducts();
+      // tests for the new tree level view, not yet working, in development
+      // let productsAll = await repo.products.getAllProducts();
 
       let ordersDocs = await repo.orders.getAll();
       ordersDocs.forEach(function (ordersDocs) {
@@ -141,7 +150,7 @@ function SideMenu() {
             defaultOpenKeys={["sub1", "sub2", "sub3"]}
             mode="inline"
           >
-            {/* <Menu.Item
+            <Menu.Item
               key="overview"
               icon={<PieChartOutlined />}
               onClick={() => setSelectedOption("overview")}
@@ -149,7 +158,7 @@ function SideMenu() {
               <Link to="/Overview">
                 <span>Overview</span>
               </Link>
-            </Menu.Item> */}
+            </Menu.Item>
             <SubMenu key="sub1" icon={<MailOutlined />} title="库存">
               <Menu.Item
                 key="1"
@@ -229,7 +238,7 @@ function SideMenu() {
                 }}
               >
                 <Link to="/Air">
-                  <span>空运</span>
+                  <span>单件录入</span>
                 </Link>
               </Menu.Item>
               <Menu.Item
@@ -240,7 +249,7 @@ function SideMenu() {
                 }}
               >
                 <Link to="/Sea">
-                  <span>海运</span>
+                  <span>海空运</span>
                 </Link>
               </Menu.Item>
             </SubMenu>
@@ -251,7 +260,13 @@ function SideMenu() {
             renders the first one that matches the current URL. */}
 
         <Layout>
-          <Header style={{ padding: 0, backgroundColor: "#fff" }}>
+          <Header
+            style={{
+              padding: 0,
+              backgroundColor: "#fff",
+              // maxHeight: "50px",
+            }}
+          >
             {React.createElement(
               collapsed ? MenuUnfoldOutlined : MenuFoldOutlined,
               {
@@ -259,12 +274,58 @@ function SideMenu() {
                 onClick: toggle,
               }
             )}
+            <Menu
+              style={{ float: "right" }}
+              onClick={() => {}}
+              mode="horizontal"
+            >
+              <SubMenu
+                key="SubMenu"
+                icon={<ShoppingCartOutlined />}
+                title="Cart"
+              >
+                {cartProducts.map(
+                  (singleOrder) => (
+                    // singleOrder[1] is product ID
+                    <Menu.ItemGroup title={singleOrder[0]}>
+                      <Menu.Item style={{ color: "#e37373" }}>
+                        <a>
+                          <span style={{ color: "black" }}>
+                            {singleOrder[2]}
+                          </span>
+                          <Button
+                            danger
+                            style={{ float: "right", marginTop: "8px" }}
+                            size="small"
+                            onClick={() => {
+                              // cartProducts.remove(singleOrder);
+                              cartProducts.splice(
+                                cartProducts.indexOf(singleOrder),
+                                1
+                              );
+                              // trigger refresh to rerender cart
+                              setRefresh(true);
+                            }}
+                          >
+                            Remove
+                          </Button>
+                        </a>
+                      </Menu.Item>
+                    </Menu.ItemGroup>
+                  )
+                  // To debug above cart submenu generation
+                  // {
+                  //   console.log(cartProducts);
+                  // }
+                )}
+              </SubMenu>
+            </Menu>
           </Header>
           <Content
             style={{
               minHeight: "90vh",
               backgroundColor: "#fff",
-              padding: "5px 10px 0px 10px",
+              padding: "5px 0px 0px 0px",
             }}
           >
             <Switch>
@@ -272,11 +333,13 @@ function SideMenu() {
                 <Route path="/Overview" component={Overview}></Route>
                 <Route
                   path="/Inventory"
-                  component={() => Inventory(products, setRefresh)}
+                  component={() =>
+                    Inventory(products, setRefresh, appendToCartProducts)
+                  }
                 ></Route>
                 <Route
                   path="/NewOrder"
-                  component={() => NewOrder(setRefresh)}
+                  component={() => NewOrder(setRefresh, cartProducts)}
                 ></Route>
                 <Route
                   path="/TobeShipped"
@@ -291,7 +354,10 @@ function SideMenu() {
                   component={() => Finished(orders, setRefresh)}
                 ></Route>
                 <Route path="/Postage" component={Postage}></Route>
-                <Route path="/Air" component={() => Air(setRefresh)}></Route>
+                <Route
+                  path="/Air"
+                  component={() => Air(products, setRefresh)}
+                ></Route>
                 <Route path="/Sea" component={Sea}></Route>
               </Route>
             </Switch>
@@ -302,15 +368,7 @@ function SideMenu() {
   );
 }
 
-function Overview() {
-  return (
-    <div>
-      <h2>Overview</h2>
-    </div>
-  );
-}
-
-function Inventory(products, setRefresh) {
+function Inventory(products, setRefresh, appendToCartProducts) {
   // filter on the whole inventory table
   // by status: in stock, air, sea
   // select "in stock" items now
@@ -331,9 +389,9 @@ function Inventory(products, setRefresh) {
   for (var i = 0; i < products.length; i++) {
     var priceCAD = parseInt(products[i]["CAD"]);
     var priceRMB = priceCAD * exchangeRate;
-    products[i]["10%"] = priceCAD * 0.9;
-    products[i]["正价"] = priceRMB;
-    products[i]["九折"] = priceRMB * 0.9;
+    products[i]["10%"] = (priceCAD * 0.9).toFixed(2);
+    products[i]["RMB"] = priceRMB.toFixed(2);
+    products[i]["九折"] = (priceRMB * 0.9).toFixed(2);
   }
 
   return (
@@ -348,10 +406,11 @@ function Inventory(products, setRefresh) {
           "F",
           "CAD",
           "10%",
-          "正价",
+          "RMB",
           "九折",
         ])}
         listType={type}
+        appendToCartProducts={appendToCartProducts}
       />
     </div>
   );
