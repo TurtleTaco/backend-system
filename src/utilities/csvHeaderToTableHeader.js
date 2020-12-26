@@ -1,14 +1,19 @@
 import { Space } from "antd";
+
 export default function prepareHeaders(properties) {
   return Array.prototype.map.call(properties, function (property) {
     var lowerProperty = property;
     var itemNameTemplate = {
-      title: property,
+      title: "property",
       dataIndex: lowerProperty,
       key: lowerProperty,
-      width: 100,
+      width: 10,
       fixed: "left",
-      ellipsis: false,
+      // ellipsis: false,
+      sorter: {
+        compare: (a, b) => a.name - b.name,
+        multiple: 1,
+      },
     };
     var sizeTemplate = {
       title: property,
@@ -31,6 +36,10 @@ export default function prepareHeaders(properties) {
       width: 50,
       fixed: "left",
       ellipsis: true,
+      sorter: {
+        compare: (a, b) => a.微信号 - b.微信号,
+        multiple: 1,
+      },
     };
     var addressTemplate = {
       title: property,
@@ -49,6 +58,7 @@ export default function prepareHeaders(properties) {
 
     switch (property) {
       case "Name":
+        console.log("Name here");
         return itemNameTemplate;
         break;
       case "S":

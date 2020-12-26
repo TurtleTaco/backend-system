@@ -72,7 +72,7 @@ const InTransitDetail = (props: TobeShippedDetailProps) => {
         onValuesChange={onFormLayoutChange}
         key={props.test}
       >
-        <Form.Item label="问候">
+        <Form.Item label="问候" style={{ marginTop: "25px" }}>
           <Input
             disabled={true}
             style={{ color: "#000000" }}
