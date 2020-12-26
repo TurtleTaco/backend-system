@@ -3,7 +3,7 @@ export default class table {
     this.collection = collection;
     this.db = db;
   }
-
+    
   add(entity, key = "") {
     if (key) {
       var docRef = this.collection.doc(key);

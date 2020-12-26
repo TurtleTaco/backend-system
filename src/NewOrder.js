@@ -17,7 +17,7 @@ import {
 
 import Repo from "./repository/repository";
 
-function newOrderSubmit(object, sideMenuSetRefresh) {
+function newOrderSubmit(object, sideMenuSetRefresh, productsToBeOrdered) {
   console.log(object);
 
   // if 礼物 / 加急 is empty, meaning they are not required
@@ -30,12 +30,62 @@ function newOrderSubmit(object, sideMenuSetRefresh) {
     "fir-7b423.firebaseapp.com",
     "fir-7b423"
   );
-  repo.orders.add(object).then((e) => {
-    sideMenuSetRefresh(true);
-    // alert for correct submision and clears the form
-    message.info("New Order Submitted");
+
+  var newOrderCreatedPromise = repo.runTransaction(function(transaction){
+    
+    var newOrderRef = repo.order.add({});
+
+    var newOrderAddedPromise = transaction
+    .set(newOrderRef, object)
+    .then(function(){
+        sideMenuSetRefresh(true);
+        message.info("New Order Submitted");
+    })
+    .catch(function(e){ throw e; });
+
+    return newOrderAddedPromise
+    .then(function(){   
+         
+        var productRefsAndSizes = productsToBeOrdered.map(function(product){
+            return [repo.products.collection.doc(product.ID), product.size];
+        })
+
+        productRefsAndSizes.forEach(function(productRefAndSize) {
+            
+            transaction.get(productRefAndSize[0]).then(function(product) {
+
+                var updateParam;
+                switch (productRefAndSize[1]) {
+                    case "S" :
+                        updateParam = {S : product.S - 1}
+                    break;
+                    case "M" :
+                        updateParam = {M : product.M - 1}
+                    break;
+                    case "L" :
+                        updateParam = {L : product.L - 1}
+                    break;
+                    case "F" :
+                        updateParam = {F : product.F - 1}
+                    break;
+                }
+
+                transaction
+                .update(productRefAndSize[0], updateParam)
+                .catch(function(e) {throw e;});
+        })
+
+     }).catch(function(e) { throw e; });
   });
-}
+
+  });
+  
+  newOrderCreatedPromise
+  .then(function(){
+        console.log("Succesfully created a new Order");
+  }).catch(function(e){ throw e; });
+
+};
 
 const NewOrder = (setRefresh, cartProducts) => {
   const onFormLayoutChange = ({ size }) => {};
@@ -62,6 +112,8 @@ const NewOrder = (setRefresh, cartProducts) => {
 
   // cart products display
   const [selectionType, setSelectionType] = useState("checkbox");
+
+  var [productsToBeOrdered, setProductsToBeOrdered] = useState([]);
 
   const columns = [
     {
@@ -103,6 +155,11 @@ const NewOrder = (setRefresh, cartProducts) => {
   // rowSelection object indicates the need for row selection
   const rowSelection = {
     onChange: (selectedRowKeys, selectedRows) => {
+
+    setProductsToBeOrdered(selectedRows.map(function(selectedProduct){
+        return selectedProduct.ID;
+    }))
+
       console.log(
         `selectedRowKeys: ${selectedRowKeys}`,
         "selectedRows: ",
@@ -205,7 +262,7 @@ const NewOrder = (setRefresh, cartProducts) => {
         <Form.Item label="Submit">
           <Button
             type="primary"
-            onClick={() => newOrderSubmit(submitObject, setRefresh)}
+            onClick={() => newOrderSubmit(submitObject, setRefresh, productsToBeOrdered)}
           >
             提交
           </Button>
