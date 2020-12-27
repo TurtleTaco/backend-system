@@ -106,6 +106,7 @@ const NewOrder = (setRefresh, cartProducts, setCartProducts) => {
     礼物: "",
     邮编: "",
     邮资凭据: "",
+    包含物件: "",
   });
 
   // cart products display
@@ -260,6 +261,10 @@ const NewOrder = (setRefresh, cartProducts, setCartProducts) => {
           <Button
             type="primary"
             onClick={async () => {
+
+            submitObject["包含物件"] = JSON.stringify(productsToBeOrdered.map(function(product){
+                return [product.product, product.size];
+            })); 
 
             await newOrderSubmit(submitObject, setRefresh, productsToBeOrdered);
             productsToBeOrdered.forEach(function(product){
