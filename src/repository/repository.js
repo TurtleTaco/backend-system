@@ -22,4 +22,8 @@ export default class Repository {
     this.orders = factory.createTable("orders");
     this.products = factory.createTable("products");
   }
+
+  runTransaction(transaction) {
+    return this.db.runTransaction(transaction);
+  }
 }

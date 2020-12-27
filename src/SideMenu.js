@@ -340,7 +340,7 @@ function SideMenu() {
                 ></Route>
                 <Route
                   path="/NewOrder"
-                  component={() => NewOrder(setRefresh, cartProducts)}
+                  component={() => NewOrder(setRefresh, cartProducts, setCartProducts)}
                 ></Route>
                 <Route
                   path="/TobeShipped"
