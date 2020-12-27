@@ -17,7 +17,7 @@ import {
 
 import Repo from "./repository/repository";
 
-function newOrderSubmit(object, sideMenuSetRefresh, productsToBeOrdered) {
+async function newOrderSubmit(object, sideMenuSetRefresh, selectedProducts) {
   console.log(object);
 
   // if 礼物 / 加急 is empty, meaning they are not required
@@ -31,63 +31,61 @@ function newOrderSubmit(object, sideMenuSetRefresh, productsToBeOrdered) {
     "fir-7b423"
   );
 
-  var newOrderCreatedPromise = repo.runTransaction(function(transaction){
-    
-    var newOrderRef = repo.order.add({});
-
-    var newOrderAddedPromise = transaction
-    .set(newOrderRef, object)
-    .then(function(){
-        sideMenuSetRefresh(true);
-        message.info("New Order Submitted");
+  var productRefsAndSizes = selectedProducts.map(function(selectedProduct){
+        return [selectedProduct.ID, selectedProduct.size];
     })
-    .catch(function(e){ throw e; });
 
-    return newOrderAddedPromise
-    .then(function(){   
-         
-        var productRefsAndSizes = productsToBeOrdered.map(function(product){
-            return [repo.products.collection.doc(product.ID), product.size];
-        })
+  var newOrderCreatedPromise = repo.runTransaction(async function(transaction){
+    
+    var newOrderRef = await repo.orders.add({});
 
-        productRefsAndSizes.forEach(function(productRefAndSize) {
-            
-            transaction.get(productRefAndSize[0]).then(function(product) {
 
-                var updateParam;
-                switch (productRefAndSize[1]) {
+    console.log(productRefsAndSizes);
+    var refsAndParams = productRefsAndSizes.map(async function(productRefAndSize) {
+        
+        var productRef = repo.products.getByKey(productRefAndSize[0]);
+        var product = await transaction.get(productRef);
+    
+        var updateParam;
+        switch (productRefAndSize[1]) {
                     case "S" :
-                        updateParam = {S : product.S - 1}
+                        updateParam = {S : product.data().S - 1}
                     break;
                     case "M" :
-                        updateParam = {M : product.M - 1}
+                        updateParam = {M : product.data().M - 1}
                     break;
                     case "L" :
-                        updateParam = {L : product.L - 1}
+                        updateParam = {L : product.data().L - 1}
                     break;
                     case "F" :
-                        updateParam = {F : product.F - 1}
+                        updateParam = {F : product.data().F - 1}
                     break;
-                }
+        }
 
-                transaction
-                .update(productRefAndSize[0], updateParam)
-                .catch(function(e) {throw e;});
-        })
+        return [productRef, updateParam];
+    });
+  
+   for (var index in refsAndParams) {
+        var refAndParam = await refsAndParams[index];
+        console.log(refAndParam);
+        transaction
+        .update(refAndParam[0], refAndParam[1]);
+   }
 
-     }).catch(function(e) { throw e; });
-  });
+    transaction
+    .set(newOrderRef, object);
 
   });
   
   newOrderCreatedPromise
   .then(function(){
-        console.log("Succesfully created a new Order");
+        sideMenuSetRefresh(true);
+        message.info("New Order Submitted");
   }).catch(function(e){ throw e; });
 
 };
 
-const NewOrder = (setRefresh, cartProducts) => {
+const NewOrder = (setRefresh, cartProducts, setCartProducts) => {
   const onFormLayoutChange = ({ size }) => {};
   const { SHOW_PARENT } = TreeSelect;
 
@@ -156,9 +154,7 @@ const NewOrder = (setRefresh, cartProducts) => {
   const rowSelection = {
     onChange: (selectedRowKeys, selectedRows) => {
 
-    setProductsToBeOrdered(selectedRows.map(function(selectedProduct){
-        return selectedProduct.ID;
-    }))
+    setProductsToBeOrdered(selectedRows);
 
       console.log(
         `selectedRowKeys: ${selectedRowKeys}`,
@@ -262,7 +258,15 @@ const NewOrder = (setRefresh, cartProducts) => {
         <Form.Item label="Submit">
           <Button
             type="primary"
-            onClick={() => newOrderSubmit(submitObject, setRefresh, productsToBeOrdered)}
+            onClick={async () => {
+
+            await newOrderSubmit(submitObject, setRefresh, productsToBeOrdered);
+            productsToBeOrdered.forEach(function(product){
+                cartProducts.splice(cartProducts.indexOf(product), 1);
+            });
+            setCartProducts(cartProducts);
+
+            }}
           >
             提交
           </Button>
