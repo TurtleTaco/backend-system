@@ -68,6 +68,25 @@ export default class table {
     });
   }
 
+  updateOldProduct(object, key) {
+    var docRef = this.collection.doc(key);
+
+    return this.db.runTransaction(function (transaction) {
+      return transaction.get(docRef).then(function (doc) {
+        if (!doc.exists) {
+          throw "Document does not exist";
+        }
+
+        transaction.update(docRef, { Name: object["Name"] });
+        transaction.update(docRef, { S: object["S"] });
+        transaction.update(docRef, { M: object["M"] });
+        transaction.update(docRef, { L: object["L"] });
+        transaction.update(docRef, { F: object["F"] });
+        transaction.update(docRef, { CAD: object["CAD"] });
+      });
+    });
+  }
+
   finishOrder(key) {
     var docRef = this.collection.doc(key);
 

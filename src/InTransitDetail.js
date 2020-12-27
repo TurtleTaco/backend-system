@@ -53,7 +53,9 @@ function openTrackingLink(link) {
 
 const InTransitDetail = (props: TobeShippedDetailProps) => {
   const onFormLayoutChange = ({ size }) => {};
-  console.log(props.test);
+  //   console.log(props.test);
+
+  console.log(props.sideMenuSetRefresh);
 
   // hold form details
   const [submitObject, setSubmitObject] = useState({

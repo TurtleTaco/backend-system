@@ -10,10 +10,8 @@ export default function prepareHeaders(properties) {
       width: 10,
       fixed: "left",
       // ellipsis: false,
-      sorter: {
-        compare: (a, b) => a.name - b.name,
-        multiple: 1,
-      },
+      sorter: (a, b) => a["Name"].localeCompare(b["Name"]),
+      sortDirections: ["ascend", "descend", "ascend"],
     };
     var sizeTemplate = {
       title: property,
@@ -36,10 +34,8 @@ export default function prepareHeaders(properties) {
       width: 50,
       fixed: "left",
       ellipsis: true,
-      sorter: {
-        compare: (a, b) => a.微信号 - b.微信号,
-        multiple: 1,
-      },
+      sorter: (a, b) => a["微信号"].localeCompare(b["微信号"]),
+      sortDirections: ["ascend", "descend", "ascend"],
     };
     var addressTemplate = {
       title: property,
@@ -58,7 +54,6 @@ export default function prepareHeaders(properties) {
 
     switch (property) {
       case "Name":
-        console.log("Name here");
         return itemNameTemplate;
         break;
       case "S":

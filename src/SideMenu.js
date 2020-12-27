@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Layout, Menu, Button } from "antd";
+import { Layout, Menu, Button, Result } from "antd";
 import {
   AppstoreOutlined,
   PieChartOutlined,
@@ -18,7 +18,6 @@ import Overview from "./Overview";
 import ProductList from "./ProductList";
 import prepareHeaders from "./utilities/csvHeaderToTableHeader";
 import NewOrder from "./NewOrder";
-import Air from "./Air";
 import Repo from "./repository/repository";
 
 const { SubMenu } = Menu;
@@ -45,7 +44,9 @@ function SideMenu() {
   // restore to previously selected active tab upon refresh
   var activeDefaultSelectedKeys = [];
   activeDefaultSelectedKeys[0] = getLastActiveState().selectedOption;
-  console.log(activeDefaultSelectedKeys);
+
+  // print message to output the currently/previously active router tab
+  // console.log(activeDefaultSelectedKeys);
 
   // Declare a new state variable, which we'll call "count"
   const [repo, setRepo] = useState(
@@ -237,7 +238,7 @@ function SideMenu() {
                   setRefresh(true);
                 }}
               >
-                <Link to="/Air">
+                <Link to="/AddProduct">
                   <span>单件录入</span>
                 </Link>
               </Menu.Item>
@@ -355,8 +356,8 @@ function SideMenu() {
                 ></Route>
                 <Route path="/Postage" component={Postage}></Route>
                 <Route
-                  path="/Air"
-                  component={() => Air(products, setRefresh)}
+                  path="/AddProduct"
+                  component={() => AddProductView(products, setRefresh)}
                 ></Route>
                 <Route path="/Sea" component={Sea}></Route>
               </Route>
@@ -457,10 +458,10 @@ function InTransit(orders, setRefresh) {
         inTransitOrders.push(orders[i]);
   }
 
-  console.log("in transit");
-  console.log(orders);
-  console.log("continue");
-  console.log(inTransitOrders);
+  // console.log("in transit");
+  // console.log(orders);
+  // console.log("continue");
+  // console.log(inTransitOrders);
 
   return (
     <div>
@@ -513,17 +514,50 @@ function Finished(orders, setRefresh) {
 
 function Postage() {
   return (
+    <Result status="404" title="404" subTitle="交易细则及汇总 正在研发中" />
+  );
+}
+
+function AddProductView(products, setRefresh) {
+  let type = "AddProduct";
+
+  // populate 10% discount CAD, full price RMB and 10% discount RMB
+  // fetch for the latest currency exchange rate
+  var exchangeRate = 5.07;
+
+  for (var i = 0; i < products.length; i++) {
+    var priceCAD = parseInt(products[i]["CAD"]);
+    var priceRMB = priceCAD * exchangeRate;
+    products[i]["10%"] = (priceCAD * 0.9).toFixed(2);
+    products[i]["RMB"] = priceRMB.toFixed(2);
+    products[i]["九折"] = (priceRMB * 0.9).toFixed(2);
+  }
+
+  return (
     <div>
-      <h2>Postage</h2>
+      <ProductList
+        products={products}
+        columns={prepareHeaders([
+          "Name",
+          "S",
+          "M",
+          "L",
+          "F",
+          "CAD",
+          "10%",
+          "RMB",
+          "九折",
+        ])}
+        listType={type}
+        sideMenuSetRefresh={setRefresh}
+      />
     </div>
   );
 }
 
 function Sea() {
   return (
-    <div>
-      <h2>Sea</h2>
-    </div>
+    <Result status="404" title="404" subTitle="海空运一键入库 正在研发中" />
   );
 }
 

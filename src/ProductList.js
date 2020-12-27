@@ -4,6 +4,7 @@ import { Table, Tag, Space, Menu, Dropdown, Input, Button } from "antd";
 //////////////////// Detailed toBeShipped View ////////////////////
 import TobeShippedDetail from "./TobeShippedDetail";
 import InTransitDetail from "./InTransitDetail";
+import AddProduct from "./AddProduct";
 
 //////////////////// Detailed product view ////////////////////////
 export default function ProductList(props: ProductListProps) {
@@ -69,6 +70,7 @@ export default function ProductList(props: ProductListProps) {
     <div>
       <div className="ProductList">
         {type == "inventory" ? (
+          //////////////////////////////// Inventory View ////////////////////////////////
           <Table
             onRow={(record, rowIndex) => {
               return {
@@ -82,58 +84,6 @@ export default function ProductList(props: ProductListProps) {
                 onMouseLeave: (event) => {}, // mouse leave row
               };
             }}
-            // columns={[
-            //   {
-            //     title: "Name",
-            //     dataIndex: "Name",
-            //     // sorter: {
-            //     //   compare: (a, b) => a.Name.length - b.Name.length,
-            //     // },
-            //   },
-            //   {
-            //     title: "S",
-            //     dataIndex: "S",
-            //     sorter: {
-            //       compare: (a, b) => a.S - b.S,
-            //     },
-            //   },
-            //   {
-            //     title: "M",
-            //     dataIndex: "M",
-            //     sorter: {
-            //       compare: (a, b) => a.M - b.M,
-            //     },
-            //   },
-            //   {
-            //     title: "L",
-            //     dataIndex: "L",
-            //     sorter: {
-            //       compare: (a, b) => a.L - b.L,
-            //     },
-            //   },
-            //   {
-            //     title: "F",
-            //     dataIndex: "F",
-            //     sorter: {
-            //       compare: (a, b) => a.F - b.F,
-            //     },
-            //   },
-            //   {
-            //     title: "CAD",
-            //     dataIndex: "CAD",
-            //     sorter: {
-            //       compare: (a, b) => a.CAD - b.CAD,
-            //     },
-            //   },
-            //   {
-            //     title: "RMB",
-            //     dataIndex: "RMB",
-            //   },
-            //   {
-            //     title: "九折",
-            //     dataIndex: "九折",
-            //   },
-            // ]}
             dataSource={products}
             pagination={{ pageSize: 50 }}
             // scroll={{ y: 240 }}
@@ -160,11 +110,17 @@ export default function ProductList(props: ProductListProps) {
                   </Dropdown>
                 </Space>
               )}
-              sorter={(a, b) => {
-                console.log(a["Name"] + "   " + b["Name"]);
-                console.log(a["Name"].localeCompare(b["Name"]));
-                a["Name"].localeCompare(b["Name"]);
-              }}
+              sorter={(a, b) =>
+                /////////////////////////////////////////////
+                // Note sorter can only be 1 comparison function here
+                // multiple functions wrapper with {} is not allowed
+                /////////////////////////////////////////////
+
+                // console.log(a["Name"] + "   " + b["Name"]);
+                // console.log(a["Name"].localeCompare(b["Name"]));
+                a["Name"].localeCompare(b["Name"])
+              }
+              sortDirections={["ascend", "descend", "ascend"]}
             />
 
             {["S", "M", "L", "F", "CAD", "10%", "RMB", "九折"].map(
@@ -172,15 +128,63 @@ export default function ProductList(props: ProductListProps) {
                 <Column
                   title={catagory}
                   dataIndex={catagory}
-                  sorter={(a, b) => {
-                    // console.log(a["S"]);
-                    a[catagory].localeCompare(b[catagory]);
-                  }}
+                  sorter={(a, b) => a[catagory] - b[catagory]}
+                  sortDirections={["ascend", "descend", "ascend"]}
+                />
+              )
+            )}
+          </Table>
+        ) : //////////////////////////////// Add Product ////////////////////////////////
+        type == "AddProduct" ? (
+          <Table
+            onRow={(record, rowIndex) => {
+              return {
+                onClick: (event) => {
+                  // console.log(record);
+                  setRowContent(record);
+                }, // click row
+                onDoubleClick: (event) => {}, // double click row
+                onContextMenu: (event) => {}, // right button click row
+                onMouseEnter: (event) => {}, // mouse enter row
+                onMouseLeave: (event) => {}, // mouse leave row
+              };
+            }}
+            dataSource={products}
+            pagination={{ pageSize: 50 }}
+            // scroll={{ y: 240 }}
+            size="small"
+            style={{ minHeight: "90%", padding: "0px 24px 0px 24px" }}
+          >
+            <Column
+              title="Name"
+              key="action"
+              dataIndex="Name"
+              sorter={(a, b) =>
+                /////////////////////////////////////////////
+                // Note sorter can only be 1 comparison function here
+                // multiple functions wrapper with {} is not allowed
+                /////////////////////////////////////////////
+
+                // console.log(a["Name"] + "   " + b["Name"]);
+                // console.log(a["Name"].localeCompare(b["Name"]));
+                a["Name"].localeCompare(b["Name"])
+              }
+              sortDirections={["ascend", "descend", "ascend"]}
+            />
+
+            {["S", "M", "L", "F", "CAD", "10%", "RMB", "九折"].map(
+              (catagory) => (
+                <Column
+                  title={catagory}
+                  dataIndex={catagory}
+                  sorter={(a, b) => a[catagory] - b[catagory]}
+                  sortDirections={["ascend", "descend", "ascend"]}
                 />
               )
             )}
           </Table>
         ) : (
+          //////////////////////////////// Other View ////////////////////////////////
           <Table
             onRow={(record, rowIndex) => {
               return {
@@ -211,6 +215,12 @@ export default function ProductList(props: ProductListProps) {
       ) : null}
       {type == "inTransit" ? (
         <InTransitDetail
+          test={rowContent}
+          sideMenuSetRefresh={props.sideMenuSetRefresh}
+        />
+      ) : null}
+      {type == "AddProduct" ? (
+        <AddProduct
           test={rowContent}
           sideMenuSetRefresh={props.sideMenuSetRefresh}
         />

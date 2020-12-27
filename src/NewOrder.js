@@ -87,7 +87,7 @@ const NewOrder = (setRefresh, cartProducts) => {
       // eg: singleProduct
       // 0: "87mm mmlg黑色白logo长袖T恤新款"
       // 1: "MLzjrIcvKSHxcb5EqErI"
-      // 2: "S: 1"
+      // 2: "S"
       cartData.push({
         key: tableRowKey.toString(),
         product: singleProduct[0],
@@ -96,7 +96,7 @@ const NewOrder = (setRefresh, cartProducts) => {
       });
       tableRowKey++;
     });
-    console.log(cartData);
+    // console.log(cartData);
     return cartData;
   };
 
@@ -141,6 +141,7 @@ const NewOrder = (setRefresh, cartProducts) => {
           id="shippingMethod"
           label="寄送"
           onChange={(e) => (submitObject["寄送"] = e.target.value)}
+          style={{ marginTop: "25px" }}
         >
           <Radio.Group>
             <Radio.Button value="邮寄">邮寄</Radio.Button>

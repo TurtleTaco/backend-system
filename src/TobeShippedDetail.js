@@ -68,7 +68,6 @@ function shippingInfoSubmit(object, ID, sideMenuSetRefresh) {
 
 const TobeShippedDetail = (props: TobeShippedDetailProps) => {
   const onFormLayoutChange = ({ size }) => {};
-  console.log(props.test);
 
   // hold form details
   const [submitObject, setSubmitObject] = useState({
@@ -86,6 +85,7 @@ const TobeShippedDetail = (props: TobeShippedDetailProps) => {
         initialValues={{}}
         onValuesChange={onFormLayoutChange}
         key={props.test}
+        style={{ padding: "0px 24px 0px 24px" }}
       >
         <Divider plain>出单信息</Divider>
         <Form.Item label="递送方式">
