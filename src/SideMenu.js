@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Layout, Menu, Button, Result } from "antd";
+import { Layout, Menu, Button, Result, Descriptions } from "antd";
 import {
   AppstoreOutlined,
   PieChartOutlined,
@@ -56,7 +56,7 @@ function SideMenu() {
       "fir-7b423"
     )
   );
-  const [collapsed, setSiderCollapse] = useState(false);
+  const [collapsed, setSiderCollapse] = useState(true);
   var [products, setProducts] = useState([]);
   var [orders, setOrders] = useState([]);
 
@@ -128,8 +128,15 @@ function SideMenu() {
     <Router>
       <Layout style={{ backgroundColor: "#fff" }}>
         <Sider
-          style={{ width: 300, height: "100vh", backgroundColor: "#fff" }}
+          style={{
+            width: 300,
+            height: "100vh",
+            backgroundColor: "#fff",
+          }}
           collapsible
+          // for better mobile view, callpse all the way to hiding the sidebar
+          collapsedWidth={0}
+          trigger={null}
           collapsed={collapsed}
           // trigger={null}
           onCollapse={() => {
@@ -151,9 +158,11 @@ function SideMenu() {
             defaultOpenKeys={["sub1", "sub2", "sub3"]}
             mode="inline"
           >
+            <Menu.Item key="#0000FF">
+              <span>#0000FF Admin</span>
+            </Menu.Item>
             <Menu.Item
               key="overview"
-              icon={<PieChartOutlined />}
               onClick={() => setSelectedOption("overview")}
             >
               <Link to="/Overview">
@@ -291,12 +300,24 @@ function SideMenu() {
                     <Menu.ItemGroup title={singleOrder[0]}>
                       <Menu.Item style={{ color: "#e37373" }}>
                         <a>
-                          <span style={{ color: "black" }}>
+                          <span style={{ color: "black" }}>{" Size: "}</span>
+                          <span style={{ color: "red" }}>
+                            {/* Size */}
                             {singleOrder[2]}
+                          </span>
+                          <span style={{ color: "black" }}>{" Price: "}</span>
+                          <span style={{ color: "red" }}>
+                            {/* Price */}
+                            {singleOrder[3]}
                           </span>
                           <Button
                             danger
-                            style={{ float: "right", marginTop: "8px" }}
+                            style={{
+                              size: "5px",
+                              float: "right",
+                              marginTop: "8px",
+                              marginLeft: "5px",
+                            }}
                             size="small"
                             onClick={() => {
                               // cartProducts.remove(singleOrder);
@@ -308,7 +329,7 @@ function SideMenu() {
                               setRefresh(true);
                             }}
                           >
-                            Remove
+                            X
                           </Button>
                         </a>
                       </Menu.Item>
@@ -340,7 +361,9 @@ function SideMenu() {
                 ></Route>
                 <Route
                   path="/NewOrder"
-                  component={() => NewOrder(setRefresh, cartProducts, setCartProducts)}
+                  component={() =>
+                    NewOrder(setRefresh, cartProducts, setCartProducts)
+                  }
                 ></Route>
                 <Route
                   path="/TobeShipped"

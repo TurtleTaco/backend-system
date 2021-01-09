@@ -17,12 +17,18 @@ export default function ProductList(props: ProductListProps) {
 
   // console.log(products);
 
-  const addToCart = (optionClickEvent, productID, productName) => {
-    // eg. [essential, a23909sud0afsj, S]
+  const addToCart = (
+    optionClickEvent,
+    productID,
+    productName,
+    productPrice
+  ) => {
+    // eg. [essential, a23909sud0afsj, S, 280(in CAD)]
     var orderDetail = [
       productName,
       productID,
       optionClickEvent.target.innerHTML.charAt(0),
+      productPrice,
     ];
     console.log(orderDetail);
     props.appendToCartProducts(orderDetail);
@@ -33,6 +39,7 @@ export default function ProductList(props: ProductListProps) {
     var sizeNumberCntOption = [];
     const productID = sizeSelectionRange["ID"];
     const productName = sizeSelectionRange["Name"];
+    const productPrice = sizeSelectionRange["CAD"];
 
     ["S", "M", "L", "F"].forEach((size) => {
       if (sizeSelectionRange[size] != "0") {
@@ -55,7 +62,7 @@ export default function ProductList(props: ProductListProps) {
             <a
               onClick={(e) =>
                 // click on one of the product size number option
-                addToCart(e, productID, productName)
+                addToCart(e, productID, productName, productPrice)
               }
             >
               {option}
@@ -89,6 +96,7 @@ export default function ProductList(props: ProductListProps) {
             // scroll={{ y: 240 }}
             size="small"
             style={{ minHeight: "90%", padding: "0px 24px 0px 24px" }}
+            scroll={{ x: 240 }}
           >
             <Column
               title="Name"

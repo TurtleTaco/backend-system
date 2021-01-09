@@ -69,12 +69,16 @@ function shippingInfoSubmit(object, ID, sideMenuSetRefresh) {
 const TobeShippedDetail = (props: TobeShippedDetailProps) => {
   const onFormLayoutChange = ({ size }) => {};
 
+  console.log(props.test);
   // hold form details
   const [submitObject, setSubmitObject] = useState({
     Tracking: "",
     实际邮资: "",
     邮资凭据: "",
   });
+
+  // purchased item description
+  console.log(props.test["包含物件"]);
 
   return (
     <>
@@ -100,6 +104,14 @@ const TobeShippedDetail = (props: TobeShippedDetailProps) => {
             disabled={true}
             style={{ color: "#000000" }}
             value={props.test["ID"]}
+          />
+        </Form.Item>
+        <Form.Item label="单品">
+          <Input
+            disabled={true}
+            style={{ color: "#000000" }}
+            maxLength="5"
+            value={props.test["包含物件"]}
           />
         </Form.Item>
         <Form.Item label="姓名">
