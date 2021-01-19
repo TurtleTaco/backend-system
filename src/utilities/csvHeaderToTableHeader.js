@@ -32,7 +32,6 @@ export default function prepareHeaders(properties) {
       dataIndex: lowerProperty,
       key: lowerProperty,
       width: 50,
-      fixed: "left",
       ellipsis: true,
       sorter: (a, b) => a["微信号"].localeCompare(b["微信号"]),
       sortDirections: ["ascend", "descend", "ascend"],
@@ -48,7 +47,7 @@ export default function prepareHeaders(properties) {
       title: property,
       dataIndex: lowerProperty,
       key: lowerProperty,
-      width: 25,
+      width: 50,
       ellipsis: false,
     };
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Layout, Menu, Button, Result, Descriptions } from "antd";
+import { Layout, Menu, Table, Form, Button, Result, Descriptions } from "antd";
 import {
   AppstoreOutlined,
   PieChartOutlined,
@@ -158,9 +158,9 @@ function SideMenu() {
             defaultOpenKeys={["sub1", "sub2", "sub3"]}
             mode="inline"
           >
-            <Menu.Item key="#0000FF">
+            {/* <Menu.Item key="#0000FF">
               <span>#0000FF Admin</span>
-            </Menu.Item>
+            </Menu.Item> */}
             <Menu.Item
               key="overview"
               onClick={() => setSelectedOption("overview")}

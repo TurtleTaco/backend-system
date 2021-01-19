@@ -11,6 +11,7 @@ export default function ProductList(props: ProductListProps) {
   const [products, setProducts] = useState(props.products);
   const [columns, setColumns] = useState(props.columns);
   const [rowContent, setRowContent] = useState({});
+  const [rowProducts, setRowProducts] = useState({});
 
   let type = props.listType.toString();
   const { Column, ColumnGroup } = Table;
@@ -93,7 +94,6 @@ export default function ProductList(props: ProductListProps) {
             }}
             dataSource={products}
             pagination={{ pageSize: 50 }}
-            // scroll={{ y: 240 }}
             size="small"
             style={{ minHeight: "90%", padding: "0px 24px 0px 24px" }}
             scroll={{ x: 240 }}
@@ -148,7 +148,6 @@ export default function ProductList(props: ProductListProps) {
             onRow={(record, rowIndex) => {
               return {
                 onClick: (event) => {
-                  // console.log(record);
                   setRowContent(record);
                 }, // click row
                 onDoubleClick: (event) => {}, // double click row
@@ -159,7 +158,7 @@ export default function ProductList(props: ProductListProps) {
             }}
             dataSource={products}
             pagination={{ pageSize: 50 }}
-            // scroll={{ y: 240 }}
+            scroll={{ x: 240 }}
             size="small"
             style={{ minHeight: "90%", padding: "0px 24px 0px 24px" }}
           >
@@ -192,13 +191,35 @@ export default function ProductList(props: ProductListProps) {
             )}
           </Table>
         ) : (
-          //////////////////////////////// Other View ////////////////////////////////
+          //////////////////////////////// Other Table View ////////////////////////////////
           <Table
             onRow={(record, rowIndex) => {
               return {
                 onClick: (event) => {
-                  // console.log(record);
                   setRowContent(record);
+
+                  // construct purchased item name and size object
+                  var rowProducts = [];
+                  console.log(record["包含物件"]);
+                  var splitRowProductsStringList = record["包含物件"].split(
+                    '"'
+                  );
+                  // split results at 1, 3, 5, 7 ... are the product, size, product, size...
+                  for (var i = 1; i < splitRowProductsStringList.length; ) {
+                    console.log(
+                      splitRowProductsStringList[i] +
+                        " and " +
+                        splitRowProductsStringList[i + 2]
+                    );
+                    var temp = {
+                      Product: splitRowProductsStringList[i],
+                      Size: splitRowProductsStringList[i + 2],
+                    };
+                    rowProducts.push(temp);
+                    i += 4;
+                  }
+                  console.log(rowProducts);
+                  setRowProducts(rowProducts);
                 }, // click row
                 onDoubleClick: (event) => {}, // double click row
                 onContextMenu: (event) => {}, // right button click row
@@ -209,15 +230,16 @@ export default function ProductList(props: ProductListProps) {
             columns={columns}
             dataSource={products}
             pagination={{ pageSize: 50 }}
-            // scroll={{ y: 240 }}
+            scroll={{ x: 240 }}
             size="small"
-            style={{ minHeight: "90%", padding: "0px 24px 0px 24px" }}
+            style={{ padding: "0px 24px 0px 24px" }}
           ></Table>
         )}
       </div>
       {type == "toBeShipped" ? (
         <TobeShippedDetail
           test={rowContent}
+          rowProduct={rowProducts}
           sideMenuSetRefresh={props.sideMenuSetRefresh}
         />
       ) : null}

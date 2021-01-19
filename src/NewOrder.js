@@ -212,8 +212,10 @@ const NewOrder = (setRefresh, cartProducts, setCartProducts) => {
       setTotalSelectedPrice(totalValueCAD);
     },
     getCheckboxProps: (record) => ({
-      disabled: record.name === "Disabled User", // Column configuration not to be checked
-      name: record.name,
+      // this is an anym function
+      // row with total price cannot be selected because it is not a product
+      disabled: record.product === "Total Price", // Column configuration not to be checked
+      product: record.product,
     }),
   };
 
@@ -248,11 +250,39 @@ const NewOrder = (setRefresh, cartProducts, setCartProducts) => {
             id="shippingMethod"
             label="寄送"
             onChange={(e) => (submitObject["寄送"] = e.target.value)}
+            style={{ padding: "0px 0px 0px 0px" }}
           >
             <Radio.Group>
-              <Radio.Button value="邮寄">邮寄</Radio.Button>
-              <Radio.Button value="送货">送货</Radio.Button>
-              <Radio.Button value="自取">自取</Radio.Button>
+              <Radio.Button
+                value="邮寄"
+                style={{
+                  marginLeft: "0px",
+                  marginRight: "10px",
+                  marginTop: "10px",
+                }}
+              >
+                邮寄
+              </Radio.Button>
+              <Radio.Button
+                value="送货"
+                style={{
+                  marginLeft: "10px",
+                  marginRight: "10px",
+                  marginTop: "10px",
+                }}
+              >
+                送货
+              </Radio.Button>
+              <Radio.Button
+                value="自取"
+                style={{
+                  marginLeft: "10px",
+                  marginRight: "10px",
+                  marginTop: "10px",
+                }}
+              >
+                自取
+              </Radio.Button>
             </Radio.Group>
           </Form.Item>
           <Form.Item label="姓名">

@@ -3,7 +3,7 @@ export default class table {
     this.collection = collection;
     this.db = db;
   }
-    
+
   add(entity, key = "") {
     if (key) {
       var docRef = this.collection.doc(key);
@@ -64,6 +64,20 @@ export default class table {
 
         transaction.update(docRef, { Tracking: object["Tracking"] });
         transaction.update(docRef, { 实际邮资: object["实际邮资"] });
+      });
+    });
+  }
+
+  deleteOrder(object, key) {
+    var docRef = this.collection.doc(key);
+
+    return this.db.runTransaction(function (transaction) {
+      return transaction.get(docRef).then(function (doc) {
+        if (!doc.exists) {
+          throw "Document does not exist";
+        }
+
+        transaction.delete(docRef);
       });
     });
   }
