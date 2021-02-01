@@ -4,6 +4,7 @@ import { Table, Tag, Space, Menu, Dropdown, Input, Button } from "antd";
 //////////////////// Detailed toBeShipped View ////////////////////
 import TobeShippedDetail from "./TobeShippedDetail";
 import InTransitDetail from "./InTransitDetail";
+import FinishedDetail from "./FinishedDetail";
 import AddProduct from "./AddProduct";
 
 //////////////////// Detailed product view ////////////////////////
@@ -246,12 +247,20 @@ export default function ProductList(props: ProductListProps) {
       {type == "inTransit" ? (
         <InTransitDetail
           test={rowContent}
+          rowProduct={rowProducts}
           sideMenuSetRefresh={props.sideMenuSetRefresh}
         />
       ) : null}
       {type == "AddProduct" ? (
         <AddProduct
           test={rowContent}
+          sideMenuSetRefresh={props.sideMenuSetRefresh}
+        />
+      ) : null}
+      {type == "Finished" ? (
+        <FinishedDetail
+          test={rowContent}
+          rowProduct={rowProducts}
           sideMenuSetRefresh={props.sideMenuSetRefresh}
         />
       ) : null}

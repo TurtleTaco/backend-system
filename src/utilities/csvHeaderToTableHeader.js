@@ -50,6 +50,31 @@ export default function prepareHeaders(properties) {
       width: 50,
       ellipsis: false,
     };
+    var postageTemplate = {
+      title: property,
+      dataIndex: lowerProperty,
+      key: lowerProperty,
+      width: 50,
+      ellipsis: false,
+    };
+    var dateTemplate = {
+      title: property,
+      dataIndex: lowerProperty,
+      key: lowerProperty,
+      width: 50,
+      ellipsis: false,
+      sorter: (a, b) => a["日期"].localeCompare(b["日期"]),
+      sortDirections: ["ascend", "descend", "ascend"],
+    };
+    var personNameTemplate = {
+      title: property,
+      dataIndex: lowerProperty,
+      key: lowerProperty,
+      width: 50,
+      ellipsis: false,
+      sorter: (a, b) => a["姓名"].localeCompare(b["姓名"]),
+      sortDirections: ["ascend", "descend", "ascend"],
+    };
 
     switch (property) {
       case "Name":
@@ -86,6 +111,18 @@ export default function prepareHeaders(properties) {
 
       case "礼物":
         return statusTemplate;
+        break;
+
+      case "实际邮资":
+        return postageTemplate;
+        break;
+
+      case "日期":
+        return dateTemplate;
+        break;
+
+      case "姓名":
+        return personNameTemplate;
         break;
 
       case "ExchangeRate":

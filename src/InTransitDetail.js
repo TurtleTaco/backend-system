@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Form,
   Input,
@@ -14,12 +14,14 @@ import {
   Descriptions,
   Divider,
   message,
+  Table,
 } from "antd";
 import { UploadOutlined, InboxOutlined } from "@ant-design/icons";
 import Iframe from "react-iframe";
 
 import Repo from "./repository/repository";
 
+const { Column, ColumnGroup } = Table;
 const { Option } = Select;
 
 const normFile = (e) => {
@@ -55,7 +57,7 @@ const InTransitDetail = (props: TobeShippedDetailProps) => {
   const onFormLayoutChange = ({ size }) => {};
   //   console.log(props.test);
 
-  console.log(props.sideMenuSetRefresh);
+  // console.log(props.sideMenuSetRefresh);
 
   // hold form details
   const [submitObject, setSubmitObject] = useState({
@@ -63,6 +65,36 @@ const InTransitDetail = (props: TobeShippedDetailProps) => {
     实际邮资: "",
     邮资凭据: "",
   });
+  const [itemsBought, setItemsBought] = useState([{ Product: "", Size: "" }]);
+
+  useEffect(() => {
+    // ???????????????????????????????????????????????
+    // may be caused by react strict mode under development environment
+    // the render is triggered twice, if not checking for empty
+    // the second render will give the itemsBought an undefined object
+    // thus overwriting the initial [{ Product: "", Size: "" }] which is a valid table data input
+    // undefined itemsBought causes table not being able to render
+    if (Object.keys(props.rowProduct).length != 0) {
+      setItemsBought(props.rowProduct);
+      console.log(props.rowProduct);
+    }
+  }, [props.rowProduct]);
+
+  // purchased item name + size
+  // console.log(itemsBought);
+
+  const columns = [
+    {
+      title: "Product",
+      dataIndex: "Product",
+      key: "product",
+    },
+    {
+      title: "Size",
+      dataIndex: "Size",
+      key: "size",
+    },
+  ];
 
   return (
     <>
@@ -171,6 +203,22 @@ const InTransitDetail = (props: TobeShippedDetailProps) => {
               </Radio.Button>
             </Radio.Group>
           </Form.Item>
+          <div>
+            <Form.Item label="单品">
+              <Table
+                // eg.
+                // dataSource={[
+                //   { Product: "jack", Size: "L" },
+                //   { Product: "Ess", Size: "M" },
+                // ]}
+                dataSource={itemsBought}
+                columns={columns}
+                pagination={false}
+                size="small"
+                scroll={{ x: 240 }}
+              />
+            </Form.Item>
+          </div>
           <Form.Item label="Order ID">
             <Input
               disabled={true}

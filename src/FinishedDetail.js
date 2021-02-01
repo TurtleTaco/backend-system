@@ -13,34 +13,16 @@ import {
   Upload,
   Descriptions,
   Divider,
+  message,
   Table,
 } from "antd";
 import { UploadOutlined, InboxOutlined } from "@ant-design/icons";
+import Iframe from "react-iframe";
 
 import Repo from "./repository/repository";
 
 const { Column, ColumnGroup } = Table;
-
 const { Option } = Select;
-
-// tracking prefix is by default canada post
-// consistent with select defult value
-// on select option change, the trackingPrefix is changed accordingly
-var trackingPrefix = "https://www.canadapost.ca/trackweb/en#/details/";
-const trackAddressBefore = (
-  <Select
-    defaultValue="https://www.canadapost.ca/trackweb/en#/details/"
-    className="select-before"
-    onChange={(value, e) => (trackingPrefix = value)}
-  >
-    <Option value="https://www.canadapost.ca/trackweb/en#/details/">
-      Canada Post
-    </Option>
-    <Option value="https://tools.usps.com/go/TrackConfirmAction?tLabels=">
-      USPS
-    </Option>
-  </Select>
-);
 
 const normFile = (e) => {
   console.log("Upload event:", e);
@@ -50,11 +32,7 @@ const normFile = (e) => {
   return e && e.fileList;
 };
 
-function shippingInfoSubmit(object, ID, sideMenuSetRefresh) {
-  console.log(object);
-  // add tracking website prefix
-  object["Tracking"] = trackingPrefix + object["Tracking"];
-
+function endOrder(ID, sideMenuSetRefresh) {
   // add this to order db
   let repo = new Repo(
     "AIzaSyB4WmRNMzNmBI5iERYj_Q-Bw-UpRSbBzz0",
@@ -63,49 +41,33 @@ function shippingInfoSubmit(object, ID, sideMenuSetRefresh) {
   );
 
   // add tracking website + actual postage to the existing order
-  // then -> trigger side menu refresh state change
-  repo.orders
-    .insertOrderObjectByKey(object, ID)
-    .then((e) => sideMenuSetRefresh(true));
+  repo.orders.finishOrder(ID).then((e) => {
+    sideMenuSetRefresh(true);
+    // alert for order maked as finish
+    message.info("Marked Order as Completed");
+  });
 }
 
-function deleteToBeShipped(object, ID, sideMenuSetRefresh) {
-  // add this to order db
-  let repo = new Repo(
-    "AIzaSyB4WmRNMzNmBI5iERYj_Q-Bw-UpRSbBzz0",
-    "fir-7b423.firebaseapp.com",
-    "fir-7b423"
-  );
-
-  // add tracking website + actual postage to the existing order
-  // then -> trigger side menu refresh state change
-  repo.orders.deleteOrder(object, ID).then((e) => sideMenuSetRefresh(true));
+function openTrackingLink(link) {
+  console.log("Clicked");
+  window.open(link);
 }
 
-const TobeShippedDetail = (props: TobeShippedDetailProps) => {
+const FinishedDetail = (props: FinishedDetailProps) => {
   const onFormLayoutChange = ({ size }) => {};
+  //   console.log(props.test);
 
-  // console.log(props.test);
+  //   console.log(props.sideMenuSetRefresh);
+
   // hold form details
   const [submitObject, setSubmitObject] = useState({
     Tracking: "",
     实际邮资: "",
     邮资凭据: "",
   });
-
-  // deliver method
-  // ?????????????????????????????????????????????
-  const [deliverMethod, setDeliverMethod] = useState(props.test["寄送"]);
   const [itemsBought, setItemsBought] = useState([{ Product: "", Size: "" }]);
-  // !!!!!!!!!!!!!!!!!
-  // rerender can only be triggered by state change
-  // props changes cannot be synced to state with useState
-  // useEffect sync props change to state and then trigger rerender
-  // notice props change -> only triggers unmount and mount -> unmount, mount event is controlled by useEffect
-  useEffect(() => {
-    // code to run on component mount
-    setDeliverMethod(props.test["寄送"]);
 
+  useEffect(() => {
     // ???????????????????????????????????????????????
     // may be caused by react strict mode under development environment
     // the render is triggered twice, if not checking for empty
@@ -116,10 +78,10 @@ const TobeShippedDetail = (props: TobeShippedDetailProps) => {
       setItemsBought(props.rowProduct);
       console.log(props.rowProduct);
     }
-  }, [props.test["寄送"], props.rowProduct]);
+  }, [props.rowProduct]);
 
   // purchased item name + size
-  // console.log(itemsBought);
+  //   console.log(itemsBought);
 
   const columns = [
     {
@@ -148,12 +110,71 @@ const TobeShippedDetail = (props: TobeShippedDetailProps) => {
           key={props.test}
           style={{ padding: "0px 0px 0px 0px" }}
         >
-          <Divider plain>出单信息</Divider>
+          <Form.Item label="问候" style={{ marginTop: "25px" }}>
+            <Input
+              disabled={true}
+              style={{ color: "#000000" }}
+              value={
+                "宝宝您的订单已经发出 详情可以在这个link中查询！" +
+                props.test["Tracking"]
+              }
+            />
+          </Form.Item>
+
+          <Form.Item label="Action">
+            <Button
+              type="primary"
+              onClick={() => {
+                navigator.clipboard.writeText(
+                  "宝宝您的订单已经发出 详情可以在这个link中查询！" +
+                    props.test["Tracking"]
+                );
+                // alert for successful copy
+                message.info("Copied Greeting");
+              }}
+              style={{
+                marginLeft: "10px",
+                marginRight: "10px",
+                marginTop: "10px",
+              }}
+            >
+              拷贝问候
+            </Button>
+
+            <Button
+              type="primary"
+              onClick={() => openTrackingLink(props.test["Tracking"])}
+              style={{
+                marginLeft: "10px",
+                marginRight: "10px",
+                marginTop: "10px",
+              }}
+            >
+              跟踪订单
+            </Button>
+
+            <Button
+              type="primary"
+              onClick={() =>
+                endOrder(props.test["ID"], props.sideMenuSetRefresh)
+              }
+              style={{
+                marginLeft: "10px",
+                marginRight: "10px",
+                marginTop: "10px",
+              }}
+            >
+              完成订单
+            </Button>
+          </Form.Item>
+
+          <Divider plain>出单信息汇总</Divider>
           <Form.Item label="递送方式">
             <Radio.Group value={props.test["寄送"]}>
               <Radio.Button
                 value="邮寄"
                 style={{
+                  marginLeft: "10px",
                   marginRight: "10px",
                   marginTop: "10px",
                 }}
@@ -182,13 +203,6 @@ const TobeShippedDetail = (props: TobeShippedDetailProps) => {
               </Radio.Button>
             </Radio.Group>
           </Form.Item>
-          <Form.Item label="Order ID">
-            <Input
-              disabled={true}
-              style={{ color: "#000000" }}
-              value={props.test["ID"]}
-            />
-          </Form.Item>
           <div>
             <Form.Item label="单品">
               <Table
@@ -205,6 +219,13 @@ const TobeShippedDetail = (props: TobeShippedDetailProps) => {
               />
             </Form.Item>
           </div>
+          <Form.Item label="Order ID">
+            <Input
+              disabled={true}
+              style={{ color: "#000000" }}
+              value={props.test["ID"]}
+            />
+          </Form.Item>
           <Form.Item label="姓名">
             <Input
               disabled={true}
@@ -269,28 +290,22 @@ const TobeShippedDetail = (props: TobeShippedDetailProps) => {
             />
           </Form.Item>
 
-          {deliverMethod == "邮寄" ? (
-            // 发货邮寄填写
-            <div>
-              <Divider plain>邮寄填写</Divider>
-              <Form.Item label="实际邮资">
-                <InputNumber
-                  onChange={(e) => (submitObject["实际邮资"] = e.toString())}
-                />
-              </Form.Item>
-              <Form.Item label="Tracking">
-                <Input
-                  addonBefore={trackAddressBefore}
-                  onChange={(e) => (submitObject["Tracking"] = e.target.value)}
-                  pattern="[0-9]*"
-                  inputmode="numeric"
-                />
-              </Form.Item>
-            </div>
-          ) : (
-            // 自取或送货，不需要填写邮寄信息
-            <div></div>
-          )}
+          <Form.Item label="实际邮资">
+            <InputNumber
+              disabled={true}
+              style={{ color: "#000000" }}
+              value={props.test["实际邮资"]}
+            />
+          </Form.Item>
+
+          <Form.Item label="Tracking">
+            <Input
+              disabled={true}
+              style={{ color: "#000000" }}
+              href={props.test["Tracking"]}
+              value={props.test["Tracking"]}
+            />
+          </Form.Item>
 
           {/* <Form.Item
           name="upload"
@@ -303,43 +318,10 @@ const TobeShippedDetail = (props: TobeShippedDetailProps) => {
             <Button icon={<UploadOutlined />}>Click to upload</Button>
           </Upload>
         </Form.Item> */}
-
-          <Form.Item label="Submit">
-            <Button
-              type="primary"
-              onClick={() =>
-                shippingInfoSubmit(
-                  submitObject,
-                  props.test["ID"],
-                  props.sideMenuSetRefresh
-                )
-              }
-              style={{
-                marginRight: "10px",
-              }}
-            >
-              提交
-            </Button>
-            <Button
-              type="primary"
-              onClick={() =>
-                deleteToBeShipped(
-                  submitObject,
-                  props.test["ID"],
-                  props.sideMenuSetRefresh
-                )
-              }
-              style={{
-                marginLeft: "10px",
-              }}
-            >
-              删除订单
-            </Button>
-          </Form.Item>
         </Form>
       </div>
     </>
   );
 };
 
-export default TobeShippedDetail;
+export default FinishedDetail;

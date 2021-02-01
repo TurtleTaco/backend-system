@@ -107,6 +107,23 @@ function SideMenu() {
         // this allows easier update to existing order
         let orderData = ordersDocs.data();
         orderData["ID"] = ordersDocs.id;
+
+        // Sun Jan 31 2021 10:08:32 GMT+0800 (CST)
+        // to: Jan 31
+        // dont need other information, filter
+        var date = orderData["日期"];
+        var filteredData = "";
+        var spaceCnt = 0;
+        for (var i = 0; i < date.length; i++) {
+          if (date[i] == " ") {
+            spaceCnt += 1;
+          }
+          if (spaceCnt >= 1 && spaceCnt < 3) {
+            filteredData += date[i];
+          }
+        }
+        orderData["日期"] = filteredData;
+
         ordersArray.push(orderData);
       });
 
@@ -377,7 +394,10 @@ function SideMenu() {
                   path="/Finished"
                   component={() => Finished(orders, setRefresh)}
                 ></Route>
-                <Route path="/Postage" component={Postage}></Route>
+                <Route
+                  path="/Postage"
+                  component={() => Postage(orders, setRefresh)}
+                ></Route>
                 <Route
                   path="/AddProduct"
                   component={() => AddProductView(products, setRefresh)}
@@ -535,9 +555,46 @@ function Finished(orders, setRefresh) {
   );
 }
 
-function Postage() {
+function Postage(orders, setRefresh) {
+  let type = "Postage";
+  let shippedOrders = [];
+
+  var totalPostage = 0;
+  for (var i = 0; i < orders.length; i++) {
+    if (orders[i]["实际邮资"] != "") {
+      // shipped, display in InTransit table
+      shippedOrders.push(orders[i]);
+      totalPostage += parseFloat(orders[i]["实际邮资"]);
+    }
+    if (i == orders.length - 1) {
+      // at the last order
+      shippedOrders.push({
+        姓名: "未报销",
+        微信号: "",
+        地址: "",
+        寄送: "",
+        日期: "",
+        实际邮资: totalPostage.toFixed(2),
+      });
+    }
+  }
+
   return (
-    <Result status="404" title="404" subTitle="交易细则及汇总 正在研发中" />
+    <div>
+      <ProductList
+        products={shippedOrders}
+        columns={prepareHeaders([
+          "姓名",
+          "微信号",
+          "地址",
+          "寄送",
+          "日期",
+          "实际邮资",
+        ])}
+        listType={type}
+        sideMenuSetRefresh={setRefresh}
+      />
+    </div>
   );
 }
 
